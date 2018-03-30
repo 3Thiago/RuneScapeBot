@@ -84,7 +84,7 @@ class DiceCommands(object):
         with CustomEmbed() as e:
             e.set_author(name='Click Here', url=url)
         await ctx.send(
-            'Your server seed is `{.server_seed}`. Your die has now been invalidated.'.format(d),
+            'Your server seed is `{0.server_seed}`, hash is `{0.server_seed_hash}`, and your client seed is `{0.client_seed}`. Your die has now been invalidated.'.format(d),
             embed=e
             )
 
