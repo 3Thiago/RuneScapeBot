@@ -45,17 +45,20 @@ class RollCommands(object):
             return
 
         # See if segment is valid
-        segment = {
-            'high': 'HIGH', 'h': 'HIGH', 'hi': 'HIGH', 
-            'middle': 'MID', 'mid': 'MID', 'medium': 'MID', 'm': 'MID',
-            'low': 'LOW', 'l': 'LOW', 'bottom': 'LOW', 'bot': 'LOW'
-        }[segment.lower()]
+        try:
+            segment = {
+                'high': 'HIGH', 'h': 'HIGH', 'hi': 'HIGH', 
+                'middle': 'MID', 'mid': 'MID', 'medium': 'MID', 'm': 'MID',
+                'low': 'LOW', 'l': 'LOW', 'bottom': 'LOW', 'bot': 'LOW'
+            }[segment.lower()]
+        except KeyError:
+            await ctx.send('I can\'t work out what you\'re trying to bet on.')
+            return
         segfunc = {
             'HIGH': lambda x: x >= 55 and x < 101,
             'MID': lambda x: x >= 45 and x < 55,
             'LOW': lambda x: x >= 0 and x < 45 
         }[segment]
-
 
         # Get and roll their die
         die = self.bot.get_die(ctx.author.id)
