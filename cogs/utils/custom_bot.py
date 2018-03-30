@@ -3,6 +3,7 @@ from json import load
 from discord import Message
 from discord.ext import commands
 from cogs.utils.runescape_database import DatabaseConnection
+from cogs.utils.provably_fair import ProvablyFair
 
 
 class CustomBot(commands.AutoShardedBot):
@@ -18,6 +19,15 @@ class CustomBot(commands.AutoShardedBot):
         self.config = data
         self.database = DatabaseConnection
         DatabaseConnection.config = data['Database']
+        self._die = {}
+
+
+    def get_die(self, user_id):
+        return self._die.get(user_id)
+
+
+    def set_die(self, user_id, die):
+        self._die[user_id] = die
 
 
     def regen_config(self):
@@ -78,3 +88,11 @@ class CustomBot(commands.AutoShardedBot):
                 # If there is, do nothing
                 else:
                     print('present')
+
+            print('Getting user die... ', end='')
+            data = await db('SELECT * FROM dice, user_data WHERE dice.user_id=user_data.user_id')
+            if data:
+                for i in data:
+                    self.set_die(i['user_id'], ProvablyFair.from_database(i))
+            print('done')
+

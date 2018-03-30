@@ -152,6 +152,9 @@ class OwnerCommands(object):
         Turns off the bot and anything related to it
         '''
 
+        async with self.bot.database() as db:
+            for i in self.bot._die.values():
+                await db.store_die(i)
         await ctx.send('Turning off now.')
         await self.bot.logout()
 

@@ -8,9 +8,18 @@ CREATE TYPE currency AS ENUM ('oldscape', 'newscape');
 CREATE TABLE user_data (
     user_id bigint,
     currency_setting currency DEFAULT null,
+    client_seed text DEFAULT null,
     oldscape bigint DEFAULT 0,
     newscape bigint DEFAULT 0,
     PRIMARY KEY (user_id)    
+);
+
+
+CREATE TABLE dice (
+    user_id bigint,
+    nonce int DEFAULT -1,
+    server_seed char(40),
+    PRIMARY KEY (user_id)
 );
 
 

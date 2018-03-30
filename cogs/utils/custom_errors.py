@@ -6,3 +6,7 @@ class MissingRequiredRole(CheckFailure):
         self.message = message 
     def __str__(self):
         return self.message
+
+
+class NoDiceGenerated(CheckFailure): pass
+class NoCurrencySet(CheckFailure): pass
