@@ -5,9 +5,11 @@ USE botname;
 
 -- Create a table for the user's settings
 CREATE TYPE currency AS ENUM ('oldscape', 'newscape');
+CREATE TYPE visibility AS ENUM ('public', 'private');
 CREATE TABLE user_data (
     user_id bigint,
     currency_setting currency DEFAULT null,
+    visibility visibility DEFAULT 'public',
     client_seed text DEFAULT null,
     oldscape bigint DEFAULT 0,
     newscape bigint DEFAULT 0,

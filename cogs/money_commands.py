@@ -60,18 +60,51 @@ class MoneyCommands(object):
 
 
     @command(aliases=['wallet'])
-    async def balance(self, ctx:Context):
+    async def balance(self, ctx:Context, other_user:Member=None):
         '''
         Gives you your current balance
         '''
 
+        if other_user and other_user.id != ctx.author.id and 'Cashier' not in [i.name for i in ctx.author.roles]:
+            await ctx.send('You do not have permission to see that person\'s wallet.')
+            return
+
+        user = ctx.author if not other_user else other_user
+        user_id = user.id
         async with self.bot.database() as db:
-            x = await db('SELECT * FROM user_data WHERE user_id=$1', ctx.author.id)
+            x = await db('SELECT * FROM user_data WHERE user_id=$1', user_id)
         with CustomEmbed() as e:
+            if other_user:
+                e.set_author_to_user(user)
             e.add_new_field('RS3', money_displayer(x[0]['newscape']))
             e.add_new_field('07scape', money_displayer(x[0]['oldscape']))
-        await ctx.author.send(embed=e)
-        await ctx.message.add_reaction('\N{ENVELOPE WITH DOWNWARDS ARROW ABOVE}')
+        if x[0]['visibility'] == 'public':
+            await ctx.send(embed=e)
+        else:
+            await ctx.author.send(embed=e)
+            await ctx.message.add_reaction('\N{ENVELOPE WITH DOWNWARDS ARROW ABOVE}')
+
+
+    @command()
+    async def public(self, ctx:Context):
+        '''
+        Sets your money visibility to public
+        '''
+
+        async with self.bot.database() as db:
+            await db("UPDATE user_data SET visibility='public' WHERE user_id=$1", ctx.author.id)
+        await ctx.send('Your wallet visibility has been set to public.')
+
+
+    @command()
+    async def private(self, ctx:Context):
+        '''
+        Sets your money visibility to private
+        '''
+
+        async with self.bot.database() as db:
+            await db("UPDATE user_data SET visibility='private' WHERE user_id=$1", ctx.author.id)
+        await ctx.send('Your wallet visibility has been set to private.')
 
 
 def setup(bot:CustomBot):
