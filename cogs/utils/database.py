@@ -24,7 +24,7 @@ class DatabaseConnection(object):
         Creates the database connection to postgres using the data from the config files
         '''
 
-        conn = await asyncpg.connect(**DatabaseConnection.config)
+        conn = await asyncpg.connect(**self.config)
         return conn
 
 
@@ -40,3 +40,7 @@ class DatabaseConnection(object):
         if x:
             return x
         return None
+
+
+    async def run(self, *args):
+        return await self.__call__(*args)

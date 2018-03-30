@@ -178,7 +178,7 @@ class OwnerCommands(object):
         Unloads a cog from the bot
         '''
 
-        self.bot.unload_extension('Cogs.' + '_'.join([i.title() for i in cog_name]))
+        self.bot.unload_extension('cogs.' + '_'.join([i.lower() for i in cog_name]))
         await ctx.send('Cog unloaded.')
 
 
@@ -188,7 +188,7 @@ class OwnerCommands(object):
         Unloads a cog from the bot
         '''
 
-        self.bot.load_extension('Cogs.' + '_'.join([i.title() for i in cog_name]))
+        self.bot.load_extension('cogs.' + '_'.join([i.lower() for i in cog_name]))
         await ctx.send('Cog loaded.')
 
 
@@ -198,9 +198,9 @@ class OwnerCommands(object):
         Unloads a cog from the bot
         '''
 
-        self.bot.unload_extension('Cogs.' + '_'.join([i.title() for i in cog_name]))
+        self.bot.unload_extension('cogs.' + '_'.join([i.lower() for i in cog_name]))
         try:
-            self.bot.load_extension('Cogs.' + '_'.join([i.title() for i in cog_name]))
+            self.bot.load_extension('cogs.' + '_'.join([i.lower() for i in cog_name]))
         except Exception as e:
             await ctx.send('```py\n' + format_exc() + '```')
             return

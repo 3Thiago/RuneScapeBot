@@ -2,7 +2,7 @@ from datetime import datetime
 from json import load
 from discord import Message
 from discord.ext import commands
-from cogs.utils.database import DatabaseConnection
+from cogs.utils.runescape_database import DatabaseConnection
 
 
 class CustomBot(commands.AutoShardedBot):
