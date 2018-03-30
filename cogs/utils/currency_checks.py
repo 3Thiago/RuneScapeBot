@@ -4,8 +4,10 @@ from cogs.utils.custom_errors import NoDiceGenerated, NoCurrencySet
 
 def has_dice(*args, **kwargs):
     async def predicate(ctx:Context):
-        if ctx.bot.get_die(ctx.author.id):
-            return True 
+        d = ctx.bot.get_die(ctx.author.id)
+        if d:
+            if d.valid:
+                return True
         raise NoDiceGenerated()
     return check(predicate)
 

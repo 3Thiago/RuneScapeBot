@@ -1,39 +1,14 @@
 from discord.ext.commands import command, Context
 from cogs.utils.custom_bot import CustomBot
-from cogs.utils.provably_fair import ProvablyFair
 from cogs.utils.money_fetcher import money_fetcher
 from cogs.utils.custom_embed import CustomEmbed
 from cogs.utils.currency_checks import has_dice, has_set_currency
 
 
-class BettingCommands(object):
+class RollCommands(object):
 
     def __init__(self, bot:CustomBot):
         self.bot = bot
-        self.stored_die = {}
-
-
-    @command(aliases=['newdie'])
-    async def newdice(self, ctx:Context, client_seed:str=None):
-        '''
-        Creates a new set of dice for you to use
-        '''
-
-        if self.bot.get_die(ctx.author.id):
-            await ctx.send('You already have a die generated.')
-            return
-
-        # Make the dice
-        die = ProvablyFair(user_id=ctx.author.id, client_seed=client_seed)
-
-        # Cache and database it
-        self.bot.set_die(ctx.author.id, die)
-        async with self.bot.database() as db: 
-            await db.store_die(die)
-
-        # Print out to user
-        x = 'Your new die has been created - your server seed hash is `{.server_seed_hash}`.'.format(die)
-        await ctx.send(x)
 
 
     @command(aliases=['roll', 'die'])
@@ -65,7 +40,7 @@ class BettingCommands(object):
         # Make sure the user has enough money to lose
         async with self.bot.database() as db:
             x = await db.get_user_currency(ctx.author, currency_type)
-        if amount * 2 > x:
+        if amount and amount * 2 > x:
             await ctx.send('You don\'t have enough money to make that bet.')
             return
 
@@ -118,9 +93,9 @@ class BettingCommands(object):
             e.add_new_field('Nonce', provenfair['nonce'])
             e.add_new_field('Client Seed', provenfair['client_seed'])
             e.add_new_field('Server Seed Hash', provenfair['server_seed_hash'])
-        await ctx.send(die.server_seed, embed=e)
+        await ctx.send(embed=e)
 
 
 def setup(bot:CustomBot):
-    x = BettingCommands(bot)
+    x = RollCommands(bot)
     bot.add_cog(x)
