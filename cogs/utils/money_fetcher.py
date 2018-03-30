@@ -1,0 +1,41 @@
+def money_fetcher(user_money):
+    '''
+    Modify a user input in form similar to 3.2b so that it can be returned as an integer
+    '''
+
+    user_money = user_money.lower().replace(',','')  # Remove any characters I can't int
+    modifier = 0  # Modifier for decimals as well as mill, k, and bill
+    modify = False  # Whether or not to modifiy for decimals
+    ret = ''  # Temporary storage of what to return
+
+    # Iterate through the input to get all the applicable characters
+    for i in user_money:
+
+        # Non-decimal character
+        if i.isdigit() and modify == False:
+            ret += i
+
+        # Decimal character
+        elif i.isdigit() and modify == True:
+            ret += i
+            modifier -= 1
+
+        # Is a decimal, turn on modifier
+        elif i == '.':
+            modify = True
+
+        # 10^n modifier
+        elif i in ['m', 'k', 'b']:
+            modifier += {
+                'm': 6,
+                'k': 3,
+                'b': 9
+            }[i]
+            break
+
+        # Invalid character
+        else:
+            return None
+
+    # Calculate and return
+    return int(ret) * (10**modifier)

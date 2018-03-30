@@ -1,0 +1,11 @@
+*.sublime*
+
+__pycache__
+config/*
+!config/*.example
+
+# Venv stuff
+Scripts
+Lib
+pyvenv.cfg
+pip-selfcheck.json

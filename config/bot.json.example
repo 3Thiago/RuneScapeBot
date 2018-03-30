@@ -1,0 +1,15 @@
+{
+    "Bot Token": "",
+    "Game": {
+        "name": "@Sparcli help",
+        "type": 2
+    },
+    "Database": {
+        "user": "postgres",
+        "password": "compression",
+        "database": "sparcli",
+        "host": "127.0.0.1"
+    },
+    "API Keys": {
+    },
+}

@@ -1,0 +1,63 @@
+cashin
+    use
+        Pings the "cashier" role to let them know someone wants to cashin
+
+cashout
+    use
+        Pings the "cashier" role to let them know someone wants to cashout
+
+transfer
+    args
+        user: Member
+        amount: int
+        currency: enum(rs3, 07)
+    use
+        Transfers money from the author's account into the mentioned user's
+
+deposit
+    args
+        user: Member
+        amount: int
+        currency: enum(rs3, 07)
+    restrictions
+        Can only be used by people with the "cashier" role
+    use
+        Adds an amount of money to the mentioned user's account
+
+withdraw
+    args
+        user: Member
+        amount: int
+        currency: enum(rs3, 07)
+    restrictions
+        Can only be used by people with the "cashier" role
+    use
+        Removes an amount of money from the mentioned user's account
+
+setmode
+    args
+        currency: enum(rs3, 07)
+    use
+        Sets the currency type that the user is betting with
+
+dice
+    args
+        *amount: int
+    use
+        Uses a provably fair algorithm to bet with. If the algorithm returns a number that's over 55, the user gets double their bet back. If not, then they lose their bet
+
+hotcold
+    args
+        choice: enum(hot, cold, rainbow)
+        *amount: int
+    use
+        Picks between red, orange, yellow (hot colours); blue, pastel, purple (cold colours); and rainbow
+        If the user picked the same colour as the one picked by the bot, the user gets double their bet back
+        If both the bot and the user pick rainbow, the user gets x4 their bet back
+        If the user picked wrongly, they lose their bet
+
+balance
+    aliases
+        wallet
+    use
+        Shows you your cash balance
