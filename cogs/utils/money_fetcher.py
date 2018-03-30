@@ -48,10 +48,12 @@ def money_displayer(money_amount):
 
     counter = 0
     money_amount = str(money_amount)
-    while money_amount[-1] == '0':
-        counter += 1
-        money_amount = money_amount[:-1]
-    print(counter)
+    try:
+        while money_amount[-1] == '0':
+            counter += 1
+            money_amount = money_amount[:-1]
+    except IndexError:
+        pass
     money_amount += '0' * (counter % 3)
     money_amount += {3: 'K', 6: 'M', 9: 'B', 0: ''}[(counter // 3) * 3]
     return money_amount
