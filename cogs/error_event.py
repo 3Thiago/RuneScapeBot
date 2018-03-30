@@ -45,7 +45,6 @@ class ErrorEvent(object):
                     ctx, error
                 )
             )
-            raise error
 
 
 def setup(bot:Bot):

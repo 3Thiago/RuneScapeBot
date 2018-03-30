@@ -38,7 +38,7 @@ class CashierCommands(object):
         # Modify the database
         async with self.bot.database() as db:
             await db.modify_user_currency(user, amount, currency_type)
-        await ctx.send('Database modified.')
+        await ctx.send("{.mention}'s account has been increased by `{}gp`.".format(user, amount))
 
 
     @command()
@@ -59,7 +59,7 @@ class CashierCommands(object):
         # Modify the database
         async with self.bot.database() as db:
             await db.modify_user_currency(user, -amount, currency_type)
-        await ctx.send('Database modified.')
+        await ctx.send("{.mention}'s account has been decreased by `{}gp`.".format(user, amount))
 
 
 def setup(bot:CustomBot):
