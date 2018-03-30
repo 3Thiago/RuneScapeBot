@@ -23,19 +23,31 @@ CREATE TABLE dice (
 );
 
 
-CREATE TABLE user_changes (
-    user_id bigint,
-    oldscape_changes bigint DEFAULT 0,
-    newscape_changes bigint DEFAULT 0,
-    PRIMARY KEY (user_id)
-);
-
-
 CREATE TABLE commands_run (
-    user_id BIGINT,
-    guild_id BIGINT,
-    command_name VARCHAR(20),
-    count INTEGER,
+    user_id bigint,
+    guild_id bigint,
+    command_name varchar(20),
+    count integer,
     PRIMARY KEY (user_id, guild_id, command_name)
 );
 
+
+CREATE TABLE command_log (
+    user_id bigint,
+    message_id bigint,
+    guild_id bigint,
+    command_name varchar(20),
+    message_text text,
+    time timestamp,
+    PRIMARY KEY (message_id)
+);
+
+
+CREATE TABLE modification_log (
+    cashier_id bigint,
+    user_id bigint,
+    message_id bigint,
+    oldscape_mod bigint,
+    newscape_mod bigint,
+    PRIMARY KEY (message_id)
+);

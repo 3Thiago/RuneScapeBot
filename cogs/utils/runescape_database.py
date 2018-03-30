@@ -54,7 +54,7 @@ class DatabaseConnection(_Base):
         '''
 
         sql = 'UPDATE user_data SET currency_setting=$1 WHERE user_id=$2'
-        await self.run(sql, str(db_currency), user.id)
+        await self.run(sql, str(currency_type), user.id)
 
 
     async def get_user_currency_mode(self, user):
@@ -85,4 +85,22 @@ class DatabaseConnection(_Base):
 
         sql = 'UPDATE user_data SET client_seed=$1 WHERE user_id=$2'
         await self.run(sql, die.client_seed, die.user_id)
+
+
+    async def log_user_mod(self, message, cashier, user, amount, currency_type):
+        '''
+        Logs a user's wallet modification
+        '''
+
+        if cashier == None: cashier_id = 0
+        else: cashier_id = cashier.id
+
+        user_id = user.id
+
+        sql = 'INSERT INTO modification_log (cashier_id, user_id, message_id, oldscape_mod, newscape_mod) VALUES ($1, $2, $3, $4, $5)'
+        osm, nsm = 0, 0
+        if str(currency_type) == 'oldscape': osm = amount
+        else: nsm = amount
+
+        await self.run(sql, cashier_id, user_id, message.id, osm, nsm)
 

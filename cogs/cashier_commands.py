@@ -27,17 +27,27 @@ class CashierCommands(object):
         '''
 
         # Make sure they're specifying a valid currency type
-        currency_type = validate_currency(currency_type)
-        if not currency_type:
-            await ctx.send('The specified currency type is not valid.')
-            return
+        validate_attempt = validate_currency(currency_type)
+        if not validate_attempt:
+            validate_attempt = validate_currency(amount)
+            if not validate_attempt:
+                await ctx.send('The specified currency type is not valid.')
+                return
+            else:
+                amount, currency_type = currency_type, validate_currency(amount)
+        else:
+            currency_type = validate_attempt
 
         # Get the amount of money they want to modify by (int)
         amount = money_fetcher(amount)
+        if not amount:
+            await ctx.send('That value given for money could not be interpreted.')
+            return
 
         # Modify the database
         async with self.bot.database() as db:
             await db.modify_user_currency(user, amount, currency_type)
+            await db.log_user_mod(ctx.message, ctx.author, user, amount, currency_type)
         await ctx.send("{.mention}'s account has been increased by `{}gp`.".format(user, amount))
 
 
@@ -48,17 +58,27 @@ class CashierCommands(object):
         '''
 
         # Make sure they're specifying a valid currency type
-        currency_type = validate_currency(currency_type)
-        if not currency_type:
-            await ctx.send('The specified currency type is not valid.')
-            return
+        validate_attempt = validate_currency(currency_type)
+        if not validate_attempt:
+            validate_attempt = validate_currency(amount)
+            if not validate_attempt:
+                await ctx.send('The specified currency type is not valid.')
+                return
+            else:
+                amount, currency_type = currency_type, validate_currency(amount)
+        else:
+            currency_type = validate_attempt
 
         # Get the amount of money they want to modify by (int)
         amount = money_fetcher(amount)
+        if not amount:
+            await ctx.send('That value given for money could not be interpreted.')
+            return
 
         # Modify the database
         async with self.bot.database() as db:
             await db.modify_user_currency(user, -amount, currency_type)
+            await db.log_user_mod(ctx.message, ctx.author, user, amount, currency_type)
         await ctx.send("{.mention}'s account has been decreased by `{}gp`.".format(user, amount))
 
 

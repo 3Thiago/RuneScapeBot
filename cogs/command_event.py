@@ -20,6 +20,9 @@ class CommandEvent(object):
         guild_id = 0 if not ctx.guild else ctx.guild.id
 
         async with self.bot.database() as db:
+            sql = 'INSERT INTO command_log (user_id, message_id, guild_id, command_name, message_text, time) VALUES ($1, $2, $3, $4, $5, $6)'
+            await db(sql, author_id, ctx.message.id, guild_id, command, ctx.message.content, ctx.message.created_at)
+
             try:
                 await db(
                     'INSERT INTO commands_run (user_id, command_name, count, guild_id) VALUES ($1, $2, $3, $4)', 

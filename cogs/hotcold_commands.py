@@ -96,6 +96,7 @@ class HotColdCommands(object):
         async with self.bot.database() as db:
             if amount:
                 await db.modify_user_currency(ctx.author, modamount, currency_type)
+                await db.log_user_mod(ctx.message, None, ctx.author, modamount, currency_type)
             await db.store_die(die)
 
         # Send an embed with the data

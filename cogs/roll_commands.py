@@ -39,8 +39,8 @@ class RollCommands(object):
 
         # Make sure the user has enough money to lose
         async with self.bot.database() as db:
-            x = await db.get_user_currency(ctx.author, currency_type)
-        if amount and amount * 2 > x:
+            current_wallet = await db.get_user_currency(ctx.author, currency_type)
+        if amount and amount > current_wallet:
             await ctx.send('You don\'t have enough money to make that bet.')
             return
 
@@ -88,6 +88,7 @@ class RollCommands(object):
         async with self.bot.database() as db:
             if amount:
                 await db.modify_user_currency(ctx.author, modamount, currency_type)
+                await db.log_user_mod(ctx.message, None, ctx.author, modamount, currency_type)
             await db.store_die(die)
 
         # Send an embed with the data
