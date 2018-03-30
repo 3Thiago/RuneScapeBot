@@ -51,6 +51,19 @@ class MoneyCommands(object):
         await ctx.send('Your currency mode has been updated.')
 
 
+    @command(aliases=['wallet'])
+    async def balance(self, ctx:Context):
+        '''
+        Gives you your current balance
+        '''
+
+        async with self.bot.database() as db:
+            currency_type = await db.get_user_currency_mode(ctx.author)
+            x = await db.get_user_currency(ctx.author, currency_type)
+        await ctx.message.add_reaction('\N{ENVELOPE WITH DOWNWARDS ARROW ABOVE}')
+        await ctx.author.send('You currently have `{}gp` in your {} wallet.'.format(x, currency_type))
+
+
 def setup(bot:CustomBot):
     x = MoneyCommands(bot)
     bot.add_cog(x)
