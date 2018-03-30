@@ -1,6 +1,7 @@
 from discord.ext.commands import Bot, CheckFailure, Context, MissingPermissions, BotMissingPermissions
 from discord.ext.commands import NoPrivateMessage, NotOwner, MissingRequiredArgument, BadArgument, DisabledCommand
 from discord.ext.commands import UserInputError, TooManyArguments, CommandNotFound
+from cogs.utils.custom_errors import MissingRequiredRole
 
 
 class ErrorEvent(object):
@@ -25,11 +26,13 @@ class ErrorEvent(object):
         elif isinstance(error, MissingRequiredArgument):
             await ctx.send('You are missing a required argument.')
         elif isinstance(error, BadArgument) or isinstance(error, UserInputError):
-            await ctx.send('One of the arguments given for this command were invalid.')
+            await ctx.send('One of the arguments given for this command was invalid.')
         elif isinstance(error, DisabledCommand):
             await ctx.send('That command is disabled.')
         elif isinstance(error, TooManyArguments):
             await ctx.send('You passed too many arguments for this command.')
+        elif isinstance(error, MissingRequiredRole):
+            await ctx.send('You are missing a required role `{0!s}`.'.format(error))
         elif isinstance(error, CommandNotFound):
             pass  # Don't even log a command not found
         else:
@@ -42,6 +45,7 @@ class ErrorEvent(object):
                     ctx, error
                 )
             )
+            raise error
 
 
 def setup(bot:Bot):
