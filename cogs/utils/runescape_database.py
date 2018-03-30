@@ -31,3 +31,13 @@ class DatabaseConnection(_Base):
         sql = 'UPDATE user_data SET {}=$1 WHERE user_id=$2'.format(db_currency)
             
         await self.run(sql, new_money, user.id)
+
+
+    async def set_user_currency_mode(self, user, currency_type):
+        '''
+        Sets a user's currency type to either oldscape or newscape
+        '''
+
+        db_currency = {'RS3': 'newscape', 'RS07': 'oldscape'}[currency_type]
+        sql = 'UPDATE user_data SET currency_setting=$1 WHERE user_id=$2'
+        await self.run(sql, db_currency, user.id)

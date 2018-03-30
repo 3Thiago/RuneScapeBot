@@ -1,8 +1,6 @@
 from discord import Member
-from discord.utils import get
 from discord.ext.commands import command, Context
 from cogs.utils.custom_bot import CustomBot
-from cogs.utils.custom_errors import MissingRequiredRole
 from cogs.utils.currency_validator import validate_currency
 from cogs.utils.money_fetcher import money_fetcher
 
@@ -34,6 +32,23 @@ class MoneyCommands(object):
             await db.modify_user_currency(user, amount, currency_type)
         x = "{.mention}, you have successfully transferred `{}gp` to {.mention}.".format(ctx.author, amount, user)
         await ctx.send(x)
+
+
+    @command()
+    async def setmode(self, ctx:Context, currency_type:str):
+        '''
+        Set the currency you use in your betting sessions
+        '''
+
+        # Make sure they're specifying a valid currency type
+        currency_type = validate_currency(currency_type)
+        if not currency_type:
+            await ctx.send('The specified currency type is not valid.')
+            return
+
+        async with self.bot.database() as db:
+            await db.set_user_currency_mode(ctx.author, currency_type)
+        await ctx.send('Your currency mode has been updated.')
 
 
 def setup(bot:CustomBot):

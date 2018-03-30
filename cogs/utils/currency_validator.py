@@ -5,9 +5,9 @@ def validate_currency(user_input):
 
     user_input = user_input.lower()
 
-    if 'rs3' in user_input:
+    if 'rs3' in user_input or 'new' in user_input:
         return 'RS3'
-    elif '07' in user_input:
+    elif '07' in user_input or 'old' in user_input:
         return 'RS07'
     else:
         return None
