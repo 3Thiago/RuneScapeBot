@@ -37,6 +37,13 @@ class HotColdCommands(object):
             prediction = 'HOT'
             amount = None
 
+        # Make sure the user has enough money to lose
+        async with self.bot.database() as db:
+            current_wallet = await db.get_user_currency(ctx.author, currency_type)
+        if amount and amount > current_wallet:
+            await ctx.send('You don\'t have enough money to make that bet.')
+            return
+
         # See if the prediction is valid
         try:
             prediction = {
@@ -74,7 +81,7 @@ class HotColdCommands(object):
             if prediction == 'RAINBOW' and wonroll: modamount = 4 * amount
 
         # Generate an output for the user
-        desc = '**{0.mention} has rolled a {1} on the percentile die and getting {3}, {2} the pot'.format(
+        desc = '**{0.mention} has rolled a {1}, getting {3}, and {2} the pot'.format(
             ctx.author,
             roll_result,
             {True: 'winning', False: 'losing'}[wonroll],
@@ -83,7 +90,7 @@ class HotColdCommands(object):
         if amount == None:
             desc += '**'
         else:
-            desc += ' and `{}gp`**'.format(abs(modamount))
+            desc += ' for `{}gp`**'.format(abs(modamount))
 
         # Store it in the database
         async with self.bot.database() as db:

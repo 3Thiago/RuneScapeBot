@@ -3,6 +3,7 @@ from discord.ext.commands import command, Context
 from cogs.utils.custom_bot import CustomBot
 from cogs.utils.currency_validator import validate_currency
 from cogs.utils.money_fetcher import money_fetcher
+from cogs.utils.currency_checks import has_set_currency
 
 
 class MoneyCommands(object):
@@ -21,6 +22,11 @@ class MoneyCommands(object):
         currency_type = validate_currency(currency_type)
         if not currency_type:
             await ctx.send('The specified currency type is not valid.')
+            return
+
+        # Make sure they don't send off their money to bots
+        if user.bot:
+            await ctx.send('That user is a bot. Why are you like this.')
             return
 
         # Get the amount of money they want to modify by (int)
@@ -52,6 +58,7 @@ class MoneyCommands(object):
 
 
     @command(aliases=['wallet'])
+    @has_set_currency()
     async def balance(self, ctx:Context):
         '''
         Gives you your current balance
