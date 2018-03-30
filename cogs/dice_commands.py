@@ -42,7 +42,7 @@ class DiceCommands(object):
         '''
         d = self.bot.get_die(ctx.author.id)
         if d != None and d.valid:
-            await ctx.send('You can\'t change your seed partway through your dice\'s use. To set a custom seed, invalidate your current one with the `serverseed` command, then make a new one with `newdice {}`.'.format(seed))
+            await ctx.send('You can\'t change your seed partway through your dice\'s use. To set a custom seed, invalidate your current one with the `enddice` command, then make a new one with `newdice {}`.'.format(seed))
             return
 
         # Make the dice
@@ -58,9 +58,9 @@ class DiceCommands(object):
         await ctx.send(x)
 
 
-    @command()
+    @command(aliases=['serverseed'])
     @has_dice()
-    async def serverseed(self, ctx:Context):
+    async def enddice(self, ctx:Context):
         '''
         Gets the unhashed server seed and invalidates your current dice
         '''
@@ -101,7 +101,7 @@ class DiceCommands(object):
             e.add_new_field('Latest Nonce', d.nonce)
 
         await ctx.send(
-            'To see the unhashed seed, you need to invalidate the dice with the `serverseed` command.',
+            'To see the unhashed seed, you need to invalidate the dice with the `enddice` command.',
             embed=e
             )
 

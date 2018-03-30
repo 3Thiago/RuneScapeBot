@@ -1,6 +1,6 @@
 from discord.ext.commands import command, Context
 from cogs.utils.custom_bot import CustomBot
-from cogs.utils.money_fetcher import money_fetcher
+from cogs.utils.money_fetcher import money_fetcher, money_displayer
 from cogs.utils.custom_embed import CustomEmbed
 from cogs.utils.currency_checks import has_dice, has_set_currency
 
@@ -82,7 +82,7 @@ class RollCommands(object):
         if amount == None:
             desc += '**'
         else:
-            desc += ' and `{}gp`**'.format(abs(modamount))
+            desc += ' of {}**'.format(money_displayer(abs(modamount)))
 
         # Store it in the database
         async with self.bot.database() as db:
@@ -94,6 +94,7 @@ class RollCommands(object):
         # Send an embed with the data
         with CustomEmbed() as e:
             e.description = desc
+            e.set_thumbnail(url='https://vignette.wikia.nocookie.net/runescape2/images/f/f2/Dice_bag_detail.png/revision/latest/scale-to-width-down/100?cb=20111120013858')
             e.set_footer(text='Nonce: {}'.format(provenfair['nonce']) + '. To see all random stats, run the mydice command.')
         await ctx.send(embed=e)
 

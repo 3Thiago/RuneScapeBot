@@ -39,3 +39,19 @@ def money_fetcher(user_money):
 
     # Calculate and return
     return int(ret) * (10**modifier)
+
+
+def money_displayer(money_amount):
+    '''
+    Turns a given money amount into a good ol' string
+    '''
+
+    counter = 0
+    money_amount = str(money_amount)
+    while money_amount[-1] == '0':
+        counter += 1
+        money_amount = money_amount[:-1]
+    print(counter)
+    money_amount += '0' * (counter % 3)
+    money_amount += {3: 'K', 6: 'M', 9: 'B', 0: ''}[(counter // 3) * 3]
+    return money_amount

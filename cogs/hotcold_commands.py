@@ -1,7 +1,7 @@
 from discord.ext.commands import command, Context
 from cogs.utils.custom_bot import CustomBot
 from cogs.utils.custom_embed import CustomEmbed
-from cogs.utils.money_fetcher import money_fetcher
+from cogs.utils.money_fetcher import money_fetcher, money_displayer
 from cogs.utils.currency_checks import has_dice, has_set_currency
 
 
@@ -9,12 +9,21 @@ class HotColdCommands(object):
 
     def __init__(self, bot:CustomBot):
         self.bot = bot
+        self.flower_colours = {
+          "ORANGE": "https://vignette1.wikia.nocookie.net/runescape2/images/9/99/Orange_flowers_detail.png/revision/latest?cb=20160918221429",
+          "RED": "https://vignette4.wikia.nocookie.net/runescape2/images/6/6c/Red_flowers_detail.png/revision/latest?cb=20160918221431",
+          "YELLOW": "https://vignette.wikia.nocookie.net/runescape2/images/a/a6/Yellow_flowers_detail.png/revision/latest?cb=20160918221432",
+          "BLUE": "https://vignette4.wikia.nocookie.net/runescape2/images/d/d6/Blue_flowers_detail.png/revision/latest?cb=20160918221426",
+          "PASTEL": "https://vignette3.wikia.nocookie.net/runescape2/images/5/55/Flowers_%28pastel%29_detail.png/revision/latest?cb=20160918221429",
+          "PURPLE": "https://vignette3.wikia.nocookie.net/runescape2/images/3/3d/Purple_flowers_detail.png/revision/latest?cb=20160918221430",
+          "RAINBOW": "https://vignette2.wikia.nocookie.net/runescape2/images/f/fd/Flowers_%28mixed%29_detail.png/revision/latest?cb=20160918221426"
+        }
 
 
     @command(aliases=['hc'])
     @has_dice()
     @has_set_currency()
-    async def hotcold(self, ctx:Context, prediction:str=None, amount:str=None):
+    async def hotcold(self, ctx:Context, prediction:str, amount:str=None):
         '''
         Runs the hot/cold bet for you
         '''
@@ -24,18 +33,13 @@ class HotColdCommands(object):
             currency_type = await db.get_user_currency_mode(ctx.author)
 
         # Check both amount and prediction are defined
-        if type(prediction) == str and amount == None and money_fetcher(prediction):
-            amount = money_fetcher(prediction)
-            prediction = 'HOT'
-        elif prediction != None and amount == None:
-            pass
+        if amount == None and money_fetcher(prediction):
+            await ctx.send('You need to specify what you\'re betting on.')
+            return
         elif prediction != None and amount != None:
             if prediction[0].isnumeric():
                 amount, prediction = prediction, amount
             amount = money_fetcher(amount)
-        else:
-            prediction = 'HOT'
-            amount = None
 
         # Make sure the user has enough money to lose
         async with self.bot.database() as db:
@@ -81,16 +85,13 @@ class HotColdCommands(object):
             if prediction == 'RAINBOW' and wonroll: modamount = 4 * amount
 
         # Generate an output for the user
-        desc = '**{0.mention} has rolled a {1}, getting {3}, and {2} the pot'.format(
+        desc = '**{0.mention} has picked {1} and {2} the pot'.format(
             ctx.author,
-            roll_result,
-            {True: 'winning', False: 'losing'}[wonroll],
-            rolled_colour
+            rolled_colour.lower(),
+            {True: 'won', False: 'lost'}[wonroll]
             )
-        if amount == None:
-            desc += '**'
-        else:
-            desc += ' for `{}gp`**'.format(abs(modamount))
+        if amount: desc += ' of {}**'.format(money_displayer(abs(modamount)))
+        else: desc += '**'
 
         # Store it in the database
         async with self.bot.database() as db:
@@ -102,7 +103,8 @@ class HotColdCommands(object):
         # Send an embed with the data
         with CustomEmbed() as e:
             e.description = desc
-            e.set_footer(text='Nonce: {}'.format(provenfair['nonce']) + '. To see all random stats, run the mydice command.')
+            e.set_thumbnail(url=self.flower_colours.get(rolled_colour))
+            e.set_footer(text='Roll: {}; Nonce: {}'.format(provenfair['result'], provenfair['nonce']) + '. To see all random stats, run the mydice command.')
         await ctx.send(embed=e)
 
 

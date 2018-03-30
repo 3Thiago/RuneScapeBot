@@ -4,7 +4,7 @@ from cogs.utils.custom_bot import CustomBot
 
 
 bot = CustomBot(
-    default_prefix='!',
+    default_prefix='.',
     pm_help=True
 )
 
