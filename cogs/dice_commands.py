@@ -2,6 +2,7 @@ from discord.ext.commands import command, Context
 from cogs.utils.custom_bot import CustomBot
 from cogs.utils.provably_fair import ProvablyFair
 from cogs.utils.custom_embed import CustomEmbed
+from cogs.utils.currency_checks import has_dice
 
 
 class DiceCommands(object):
@@ -58,16 +59,13 @@ class DiceCommands(object):
 
 
     @command()
+    @has_dice()
     async def serverseed(self, ctx:Context):
         '''
         Gets the unhashed server seed and invalidates your current dice
         '''
 
         d = self.bot.get_die(ctx.author.id)
-        if d == None or d.valid == False:
-            await ctx.send('You don\'t have a valid dice to get the seed of.')
-            return
-
         d.valid = False
         async with self.bot.database() as db:
             sql = 'DELETE FROM dice WHERE user_id=$1'
@@ -85,6 +83,25 @@ class DiceCommands(object):
             e.set_author(name='Click Here', url=url)
         await ctx.send(
             'Your server seed is `{0.server_seed}`, hash is `{0.server_seed_hash}`, and your client seed is `{0.client_seed}`. Your die has now been invalidated.'.format(d),
+            embed=e
+            )
+
+
+    @command()
+    @has_dice()
+    async def mydice(self, ctx:Context):
+        '''
+        Gives you the stats of your dice
+        '''
+
+        d = self.bot.get_die(ctx.author.id)
+        with CustomEmbed() as e:
+            e.add_new_field('Server Seed Hash', d.server_seed_hash)
+            e.add_new_field('Client Seed', d.client_seed)
+            e.add_new_field('Latest Nonce', d.nonce)
+
+        await ctx.send(
+            'To see the unhashed seed, you need to invalidate the dice with the `serverseed` command.',
             embed=e
             )
 
