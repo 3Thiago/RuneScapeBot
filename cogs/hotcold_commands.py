@@ -1,64 +1,62 @@
 from discord.ext.commands import command, Context
 from cogs.utils.custom_bot import CustomBot
-from cogs.utils.money_fetcher import money_fetcher
 from cogs.utils.custom_embed import CustomEmbed
+from cogs.utils.money_fetcher import money_fetcher
 from cogs.utils.currency_checks import has_dice, has_set_currency
 
 
-class RollCommands(object):
+class HotColdCommands(object):
 
     def __init__(self, bot:CustomBot):
         self.bot = bot
 
 
-    @command(aliases=['roll', 'die'])
+    @command(aliases=['hc'])
     @has_dice()
     @has_set_currency()
-    async def dice(self, ctx:Context, segment:str=None, amount:str=None):
+    async def hotcold(self, ctx:Context, prediction:str=None, amount:str=None):
         '''
-        Rolls a die for you
+        Runs the hot/cold bet for you
         '''
 
         # Get the user's currency
         async with self.bot.database() as db:
             currency_type = await db.get_user_currency_mode(ctx.author)
 
-        # Check both amount and segment are defined
-        if type(segment) == str and amount == None and money_fetcher(segment):
-            amount = money_fetcher(segment)
-            segment = 'HIGH'
-        elif segment != None and amount == None:
+        # Check both amount and prediction are defined
+        if type(prediction) == str and amount == None and money_fetcher(prediction):
+            amount = money_fetcher(prediction)
+            prediction = 'HOT'
+        elif prediction != None and amount == None:
             pass
-        elif segment != None and amount != None:
-            if segment[0].isnumeric():
-                amount, segment = segment, amount
+        elif prediction != None and amount != None:
+            if prediction[0].isnumeric():
+                amount, prediction = prediction, amount
             amount = money_fetcher(amount)
         else:
-            segment = 'HIGH'
+            prediction = 'HOT'
             amount = None
 
-        # Make sure the user has enough money to lose
-        async with self.bot.database() as db:
-            x = await db.get_user_currency(ctx.author, currency_type)
-        if amount and amount * 2 > x:
-            await ctx.send('You don\'t have enough money to make that bet.')
-            return
-
-        # See if segment is valid
+        # See if the prediction is valid
         try:
-            segment = {
-                'high': 'HIGH', 'h': 'HIGH', 'hi': 'HIGH', 
-                'middle': 'MID', 'mid': 'MID', 'medium': 'MID', 'm': 'MID',
-                'low': 'LOW', 'l': 'LOW', 'bottom': 'LOW', 'bot': 'LOW'
-            }[segment.lower()]
+            prediction = {
+                'h': 'HOT', 'hot': 'HOT', 'warm': 'HOT',
+                'c': 'COLD', 'cold': 'COLD', 'col': 'COLD',
+                'r': 'RAINBOW', 'rainbow': 'RAINBOW', 'rain': 'RAINBOW', 'rb': 'RAINBOW'
+            }[prediction.lower()]
         except KeyError:
             await ctx.send('I can\'t work out what you\'re trying to bet on.')
             return
+
+        # Generate the functions to get validity
         segfunc = {
-            'HIGH': lambda x: x >= 55 and x < 101,
-            'MID': lambda x: x >= 45 and x < 55,
-            'LOW': lambda x: x >= 0 and x < 45 
-        }[segment]
+            'HOT': lambda x: x in ['RED', 'ORANGE', 'YELLOW'],
+            'COLD': lambda x: x in ['BLUE', 'PASTEL', 'PURPLE'],
+            'RAINBOW': lambda x: x in ['RAINBOW'] 
+        }[prediction]
+
+        # Set all of the colours
+        all_colours = ['RED', 'ORANGE', 'YELLOW', 'BLUE', 'PASTEL', 'PURPLE', 'RAINBOW'] 
 
         # Get and roll their die
         die = self.bot.get_die(ctx.author.id)
@@ -66,18 +64,21 @@ class RollCommands(object):
 
         # See if they won or lost
         roll_result = provenfair['result']
-        wonroll = segfunc(roll_result)
+        roll_calc = [i for i in range(1, 8) if roll_result >= (100*i)/7]
+        rolled_colour = all_colours[len(roll_calc)]
+        wonroll = segfunc(rolled_colour)
 
         # See how much to modify by
         if amount:
             modamount = 2 * amount if wonroll else -amount
-            if segment == 'MID' and wonroll: modamount = 4 * amount
+            if prediction == 'RAINBOW' and wonroll: modamount = 4 * amount
 
         # Generate an output for the user
-        desc = '**{0.mention} has rolled a {1} on the percentile die and {2} the pot'.format(
+        desc = '**{0.mention} has rolled a {1} on the percentile die and getting {3}, {2} the pot'.format(
             ctx.author,
             roll_result,
-            {True: 'won', False: 'lost'}[wonroll]
+            {True: 'winning', False: 'losing'}[wonroll],
+            rolled_colour
             )
         if amount == None:
             desc += '**'
@@ -98,5 +99,5 @@ class RollCommands(object):
 
 
 def setup(bot:CustomBot):
-    x = RollCommands(bot)
+    x = HotColdCommands(bot)
     bot.add_cog(x)
