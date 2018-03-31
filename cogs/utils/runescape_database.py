@@ -108,3 +108,16 @@ class DatabaseConnection(_Base):
             sql = 'INSERT INTO house_modification_log (message_id, oldscape_mod, newscape_mod, reason) VALUES ($1, $2, $3, $4)'
             await self.run(sql, message.id, -osm, -nsm, reason)
 
+
+    async def add_tickets_for_user(self, user, ticket_count):
+        '''
+        Adds new tickets to the counter for a given user
+        '''
+
+        try:
+            sql = 'INSERT INTO tickets VALUES ($1, $2)'
+            await self.run(sql, user.id, ticket_count)
+        except Exception:
+            sql = 'UPDATE tickets SET ticket_count=ticket_count+$1 WHERE user_id=$2'
+            await self.run(sql, ticket_count, user.id)
+

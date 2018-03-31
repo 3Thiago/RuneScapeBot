@@ -64,3 +64,10 @@ CREATE TABLE house_modification_log (
     PRIMARY KEY (message_id)
 );
 
+
+CREATE TABLE tickets (
+    user_id bigint,
+    ticket_count integer,
+    PRIMARY KEY (user_id)
+);
+

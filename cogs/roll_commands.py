@@ -73,8 +73,17 @@ class RollCommands(object):
             modamount = 2 * amount if wonroll else -amount
             if segment == 'MID' and wonroll: modamount = 4 * amount
 
+        # See if they have any raffle tickets
+        if str(currency_type) == 'oldscape': rafflemod = 4 * 10**6
+        else: rafflemod = 25 * 10**6
+        if amount: new_tickets = amount // rafflemod
+        else: new_tickets = 0
+
         # Generate an output for the user
-        desc = '**{0.mention} has rolled a {1} on the percentile die and {2} the pot'.format(
+        desc = '**'
+        if new_tickets:
+            desc += 'Along with their {0} new raffle tickets, '.format(new_tickets)
+        desc = '{0.mention} has rolled a {1} on the percentile die and {2} the pot'.format(
             ctx.author,
             roll_result,
             {True: 'won', False: 'lost'}[wonroll]
@@ -89,6 +98,8 @@ class RollCommands(object):
             if amount:
                 await db.modify_user_currency(ctx.author, modamount, currency_type)
                 await db.log_user_mod(ctx.message, None, ctx.author, modamount, currency_type, 'ROLL')
+            if new_tickets:
+                await db.add_tickets_for_user(ctx.author, new_tickets)
             await db.store_die(die)
 
         # Send an embed with the data
