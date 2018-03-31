@@ -87,7 +87,7 @@ class DatabaseConnection(_Base):
         await self.run(sql, die.client_seed, die.user_id)
 
 
-    async def log_user_mod(self, message, cashier, user, amount, currency_type):
+    async def log_user_mod(self, message, cashier, user, amount, currency_type, reason=None):
         '''
         Logs a user's wallet modification
         '''
@@ -97,10 +97,14 @@ class DatabaseConnection(_Base):
 
         user_id = user.id
 
-        sql = 'INSERT INTO modification_log (cashier_id, user_id, message_id, oldscape_mod, newscape_mod) VALUES ($1, $2, $3, $4, $5)'
+        sql = 'INSERT INTO modification_log (cashier_id, user_id, message_id, oldscape_mod, newscape_mod, reason) VALUES ($1, $2, $3, $4, $5, $6)'
         osm, nsm = 0, 0
         if str(currency_type) == 'oldscape': osm = amount
         else: nsm = amount
 
-        await self.run(sql, cashier_id, user_id, message.id, osm, nsm)
+        await self.run(sql, cashier_id, user_id, message.id, osm, nsm, reason)
+
+        if reason not in ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER IN', 'TRANSFER OUT']:
+            sql = 'INSERT INTO house_modification_log (message_id, oldscape_mod, newscape_mod, reason) VALUES ($1, $2, $3, $4)'
+            await self.run(sql, message.id, -osm, -nsm, reason)
 

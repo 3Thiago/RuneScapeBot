@@ -47,7 +47,7 @@ class CashierCommands(object):
         # Modify the database
         async with self.bot.database() as db:
             await db.modify_user_currency(user, amount, currency_type)
-            await db.log_user_mod(ctx.message, ctx.author, user, amount, currency_type)
+            await db.log_user_mod(ctx.message, ctx.author, user, amount, currency_type, 'DEPOSIT')
         await ctx.send("{.mention}'s account has been increased by `{}gp`.".format(user, amount))
 
 
@@ -78,7 +78,7 @@ class CashierCommands(object):
         # Modify the database
         async with self.bot.database() as db:
             await db.modify_user_currency(user, -amount, currency_type)
-            await db.log_user_mod(ctx.message, ctx.author, user, amount, currency_type)
+            await db.log_user_mod(ctx.message, ctx.author, user, -amount, currency_type, 'WITHDRAWAL')
         await ctx.send("{.mention}'s account has been decreased by `{}gp`.".format(user, amount))
 
 

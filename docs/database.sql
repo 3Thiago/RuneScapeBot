@@ -51,5 +51,16 @@ CREATE TABLE modification_log (
     message_id bigint,
     oldscape_mod bigint,
     newscape_mod bigint,
+    reason varchar(256),
     PRIMARY KEY (message_id)
 );
+
+
+CREATE TABLE house_modification_log (
+    message_id bigint REFERENCES modification_log(message_id),
+    oldscape_mod bigint,
+    newscape_mod bigint,
+    reason varchar(256),
+    PRIMARY KEY (message_id)
+);
+
