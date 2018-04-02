@@ -15,7 +15,7 @@ class JoinEvent(object):
 
         async with self.bot.database() as db:
             try:
-                await db('INSERT INTO user_data (user_id) VALUES ($1)', i.id)
+                await db('INSERT INTO user_data (user_id) VALUES ($1)', member.id)
             except Exception: 
                 pass
 
