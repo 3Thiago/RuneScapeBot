@@ -63,7 +63,8 @@ class TicketCommands(object):
             data = [{**i, 'username': str(self.bot.get_user(i['user_id']))} for i in data]
             w.writerows(data)
         
-        await ctx.send(file=File('all_tickets.csv'))
+        await ctx.author.send(file=File('all_tickets.csv'))
+        await ctx.message.add_reaction('\N{THUMBS UP SIGN}')
 
         # Remove the file after sending it
         remove('all_tickets.csv')
