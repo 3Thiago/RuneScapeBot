@@ -70,8 +70,8 @@ class RollCommands(object):
 
         # See how much to modify by
         if amount:
-            modamount = 2 * amount if wonroll else -amount
-            if segment == 'MID' and wonroll: modamount = 4 * amount
+            modamount = amount if wonroll else -amount
+            if segment == 'MID' and wonroll: modamount = 3.5 * amount
 
         # See if they have any raffle tickets
         if str(currency_type) == 'oldscape': rafflemod = 4 * 10**6
@@ -88,10 +88,9 @@ class RollCommands(object):
             roll_result,
             {True: 'won', False: 'lost'}[wonroll]
             )
-        if amount == None:
-            desc += '**'
-        else:
-            desc += ' of {}**'.format(money_displayer(abs(modamount)))
+        if amount and modamount > 0: 
+            desc += ' of {}**'.format(money_displayer(modamount + amount))
+        else: desc += '**'
 
         # Store it in the database
         async with self.bot.database() as db:
