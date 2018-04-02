@@ -37,8 +37,22 @@ class MoneyCommands(object):
         async with self.bot.database() as db:
             await db.modify_user_currency(ctx.author, -amount, currency_type)
             await db.modify_user_currency(user, amount, currency_type)
-            await db.log_user_mod(ctx.message, ctx.author, user, modamount, currency_type, 'TRANSFER IN')
-            await db.log_user_mod(ctx.message, user, ctx.author, -modamount, currency_type, 'TRANSFER OUT')
+            await db.log_user_mod(
+                message=ctx.message, 
+                cashier=ctx.author, 
+                to=user, 
+                amount=modamount, 
+                currency=currency_type, 
+                reason='TRANSFER IN'
+                )
+            await db.log_user_mod(
+                message=ctx.message, 
+                cashier=user, 
+                to=ctx.author, 
+                amount=-modamount, 
+                currency=currency_type, 
+                reason='TRANSFER OUT'
+                )
         x = "{.mention}, you have successfully transferred `{}gp` to {.mention}.".format(ctx.author, amount, user)
         await ctx.send(x)
 

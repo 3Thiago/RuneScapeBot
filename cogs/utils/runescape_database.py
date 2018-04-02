@@ -87,26 +87,61 @@ class DatabaseConnection(_Base):
         await self.run(sql, die.client_seed, die.user_id)
 
 
-    async def log_user_mod(self, message, cashier, user, amount, currency_type, reason=None):
+    async def log_user_mod(self, **kwargs):
         '''
         Logs a user's wallet modification
+
+        Parameters:
+            message: discord.Message
+                The message that triggered the modification 
+            to: discord.Member
+                The member whose account is being modified
+            cashier: discord.Member
+                A secondary user whose account is being modified due to the first user
+                If this is not specified, it is assumed that the house (0) takes the burden
+            amount: int
+                The amount that their account is being changed by
+            currency: cogs.utils.currency_validator.CurrencyType
+                The type of currency that they will have their account modified by
         '''
 
-        if cashier == None: cashier_id = 0
-        else: cashier_id = cashier.id
+        # Get the 'from' user (cashier)
+        cashier = kwargs.get('cashier', 0)
+        if cashier:
+            cashier_id = cashier.id 
+        else: 
+            cashier_id = 0
 
-        user_id = user.id
+        # Get the 'to' user
+        user_id = kwargs.get('to').id 
 
-        sql = 'INSERT INTO modification_log (cashier_id, user_id, message_id, oldscape_mod, newscape_mod, reason) VALUES ($1, $2, $3, $4, $5, $6)'
-        osm, nsm = 0, 0
-        if str(currency_type) == 'oldscape': osm = amount
-        else: nsm = amount
+        # Get the message that triggered this
+        message_id = kwargs.get('message').id 
 
-        await self.run(sql, cashier_id, user_id, message.id, osm, nsm, reason)
+        # Get the amount 
+        temp_amount = kwargs.get('amount', 0)
+        currency_type = kwargs.get('currency')
+        oldscape_change, newscape_change = temp_amount, 0 if str(currency) == 'oldscape' else 0, temp_amount
 
-        if reason not in ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER IN', 'TRANSFER OUT']:
-            sql = 'INSERT INTO house_modification_log (message_id, oldscape_mod, newscape_mod, reason) VALUES ($1, $2, $3, $4)'
-            await self.run(sql, message.id, -osm, -nsm, reason)
+        # And the reason
+        reason = kwargs.get('reason', None)
+
+        # Insert the data into the database
+        sql = '''
+            INSERT INTO modification_log 
+            (cashier_id, user_id, message_id, oldscape_mod, newscape_mod, reason) 
+            VALUES 
+            ($1, $2, $3, $4, $5, $6)'''
+        await self.run(sql, cashier_id, user_id, message_id, oldscape_change, newscape_change, reason)
+
+        # Insert to house modification if not deposit/withdrawal, 
+        # and no specified cashier
+        if reason not in ['DEPOSIT', 'WITHDRAWAL'] and cashier_id == 0:
+            sql = '''
+                INSERT INTO house_modification_log 
+                (message_id, oldscape_mod, newscape_mod, reason) 
+                VALUES ($1, $2, $3, $4)'''
+            await self.run(sql, message_id, -oldscape_change, -newscape_change, reason)
 
 
     async def add_tickets_for_user(self, user, ticket_count):
