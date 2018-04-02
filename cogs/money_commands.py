@@ -35,6 +35,13 @@ class MoneyCommands(object):
 
         # Modify the database
         async with self.bot.database() as db:
+            data = await db.get_user_currency(ctx.author, currency_type)
+
+            # Check the user has enough money to do what they want
+            if amount < data[0][str(currency_type)]:
+                await ctx.send('You do not have enough money to perform that action.')
+                return
+
             await db.modify_user_currency(ctx.author, -amount, currency_type)
             await db.modify_user_currency(user, amount, currency_type)
             await db.log_user_mod(
@@ -80,14 +87,16 @@ class MoneyCommands(object):
         Gives you your current balance
         '''
 
-        if other_user and other_user.id != ctx.author.id and 'Cashier' not in [i.name for i in ctx.author.roles]:
-            await ctx.send('You do not have permission to see that person\'s wallet.')
-            return
-
         user = ctx.author if not other_user else other_user
         user_id = user.id
         async with self.bot.database() as db:
             x = await db('SELECT * FROM user_data WHERE user_id=$1', user_id)
+
+        # Other user is set, specified user is not author, private wallet, and not cashier
+        if other_user and other_user.id != ctx.author.id and x[0]['visibility'] != 'public' and 'Cashier' not in [i.name for i in ctx.author.roles]:
+            await ctx.send('You do not have permission to see that person\'s wallet.')
+            return
+
         with CustomEmbed() as e:
             if other_user:
                 e.set_author_to_user(user)
