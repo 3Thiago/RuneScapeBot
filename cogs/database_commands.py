@@ -6,10 +6,13 @@ from cogs.utils.custom_bot import CustomBot
 from cogs.utils.owner_check import predicate as is_owner
 
 
-def database_to_csv(fp, data):
-    w = DictWriter(fp, list(data[0].keys()), lineterminator='\n')
+def database_to_csv(fp, data, *, extra_rows:list=[], update_function=None):
+    w = DictWriter(fp, list(data[0].keys()) + extra_rows, lineterminator='\n')
     w.writeheader()
     data = [{**i} for i in data]
+    if update_function:
+        for i in data: 
+            i.update(update_function(i))
     w.writerows(data)
 
 
@@ -38,6 +41,26 @@ class DatabaseCommands(object):
         filename = 'modification_log.csv'
         with open(filename, 'w') as a: 
             database_to_csv(a, data)
+        f = File(filename)
+        await ctx.author.send(file=f)
+        await ctx.message.add_reaction('\N{THUMBS UP SIGN}')
+        remove(filename)
+
+
+    @command()
+    async def cashlogs(self, ctx:Context):
+        '''
+        Gives you the balance modifications for the house
+        '''
+
+        # Get relevant data
+        async with self.bot.database() as db:
+            data = await db("SELECT * FROM modification_log WHERE reason='DEPOSIT' or reason='WITHDRAWAL' ORDER BY id DESC")
+        filename = 'cash_log.csv'
+
+        update_function = lambda i: {'cashier': str(self.bot.get_user(i['cashier_id'])), 'user':str(self.bot.get_user(i['user_id'])) }
+        with open(filename, 'w') as a: 
+            database_to_csv(a, data, extra_rows=['cashier', 'user'], update_function=update_function)
         f = File(filename)
         await ctx.author.send(file=f)
         await ctx.message.add_reaction('\N{THUMBS UP SIGN}')

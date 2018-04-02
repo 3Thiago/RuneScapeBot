@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS rsbot;
-CREATE DATABASE rsbot;
-USE rsbot;
+DROP DATABASE IF EXISTS discord;
+CREATE DATABASE discord;
+USE discord;
 
 
 -- Create a table for the user's settings

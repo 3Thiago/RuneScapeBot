@@ -113,6 +113,6 @@ class Giveaway(object):
                 else:
 
                     # Nobody entered
-                    await channel.send('Guess nobody wants any free money then :/')
+                    await message.edit(content='Guess nobody wants any free money then :/')
 
             await sleep(60)

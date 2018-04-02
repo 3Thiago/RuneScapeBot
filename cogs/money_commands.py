@@ -38,7 +38,7 @@ class MoneyCommands(object):
             data = await db.get_user_currency(ctx.author, currency_type)
 
             # Check the user has enough money to do what they want
-            if amount < data[0][str(currency_type)]:
+            if amount > data:
                 await ctx.send('You do not have enough money to perform that action.')
                 return
 
