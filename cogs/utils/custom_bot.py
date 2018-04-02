@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime as dt
 from json import load
 from discord import Message
 from discord.ext import commands
 from cogs.utils.runescape_database import DatabaseConnection
 from cogs.utils.provably_fair import ProvablyFair
+from cogs.utils.giveaway import Giveaway
 
 
 class CustomBot(commands.AutoShardedBot):
@@ -13,13 +14,16 @@ class CustomBot(commands.AutoShardedBot):
         super().__init__(command_prefix=self.get_prefix, **kwargs)
         self.config = {}  # Used to store the bot config file
         self.default_prefix = kwargs['default_prefix']  # Used as a fallback for the prefix
-        self.startup = datetime.now()  # Used to check uptime
+        self.startup = dt.now()  # Used to check uptime
         with open('./config/bot.json') as a:
             data = load(a)
         self.config = data
         self.database = DatabaseConnection
         DatabaseConnection.config = data['Database']
         self._die = {}
+
+        self.giveaway = Giveaway(self)
+        self.giveaway_task = self.loop.create_task(self.giveaway.auto_giveaway())
 
 
     def get_die(self, user_id):
@@ -47,7 +51,7 @@ class CustomBot(commands.AutoShardedBot):
 
 
     def get_uptime(self):
-        return datetime.now() - self.startup
+        return dt.now() - self.startup
 
 
     async def get_prefix(self, message:Message):

@@ -5,6 +5,7 @@ from discord import Game, Embed
 from discord.ext.commands import command, group, Context, NotOwner, MissingRequiredArgument
 from asyncpg.exceptions import __all__ as PostgresError
 from cogs.utils.custom_bot import CustomBot
+from cogs.utils.owner_check import predicate as is_owner
 
 
 class OwnerCommands(object):
@@ -19,10 +20,10 @@ class OwnerCommands(object):
 
 
     async def __local_check(self, ctx:Context):
-        x = await ctx.bot.is_owner(ctx.author)
+        x = await is_owner(ctx)
         if x:
             return True
-        raise NotOwner
+        raise NotOwner()
 
 
     @command()

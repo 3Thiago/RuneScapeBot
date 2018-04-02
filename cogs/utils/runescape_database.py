@@ -14,27 +14,18 @@ class DatabaseConnection(_Base):
         Modifies a user's stored money by a given amount
 
         Params:
-            user: Member
+            user: Member or int
             amount: int
             currency_type: cogs.utils.currency_validator.CurrencyType
         '''
 
-        # Get their current money
-        current_money_obj = await self.run('''
-            SELECT * 
-            FROM user_data
-            WHERE user_id = $1
-            ''', user.id
-            )
-        current_money = current_money_obj[0][str(currency_type)]
+        try: user_id = user.id 
+        except AttributeError: user_id = user
 
-        # Modify
-        new_money = current_money + amount
-
-        # Store
-        sql = 'UPDATE user_data SET {!s}=$1 WHERE user_id=$2'.format(currency_type)
-            
-        await self.run(sql, new_money, user.id)
+        # Update and store
+        # eg "UPDATE user_data SET newscape=newscape+50 WHERE user_id=0;"
+        sql = 'UPDATE user_data SET {0!s}={0!s}+$1 WHERE user_id=$2'.format(currency_type)            
+        await self.run(sql, amount, user_id)
 
 
     async def get_user_currency(self, user, currency_type):
@@ -113,15 +104,19 @@ class DatabaseConnection(_Base):
             cashier_id = 0
 
         # Get the 'to' user
-        user_id = kwargs.get('to').id 
+        to = kwargs.get('to')
+        if type(to) == int:
+            user_id = to
+        else:
+            user_id = to.id
 
         # Get the message that triggered this
         message_id = kwargs.get('message').id 
 
         # Get the amount 
         temp_amount = kwargs.get('amount', 0)
-        currency_type = kwargs.get('currency')
-        oldscape_change, newscape_change = temp_amount, 0 if str(currency) == 'oldscape' else 0, temp_amount
+        currency = kwargs.get('currency')
+        oldscape_change, newscape_change = (temp_amount, 0) if str(currency) == 'oldscape' else (0, temp_amount)
 
         # And the reason
         reason = kwargs.get('reason', None)
