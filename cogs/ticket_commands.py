@@ -1,5 +1,8 @@
+from csv import DictWriter
+from discord import Member, File
 from discord.ext.commands import command, Context
 from cogs.utils.custom_bot import CustomBot
+from cogs.utils.owner_check import is_owner
 
 
 class TicketCommands(object):
@@ -9,21 +12,28 @@ class TicketCommands(object):
 
 
     @command()
-    async def tickets(self, ctx:Context):
+    async def tickets(self, ctx:Context, user:Member=None):
         '''
         Shows you all of the people who have tickets, and how many
         '''
 
-        async with self.bot.database() as db:
-            data = await db('SELECT * FROM tickets ORDER BY ticket_count DESC')
-        if data:
-            ret = ['**{!s}** - {} tickets'.format(ctx.guild.get_member(i['user_id']), i['ticket_count']) for i in data]
+        if user:
+            user_id = user.id
         else:
-            ret = ['No tickets.']
-        await ctx.send('\n'.join(ret))
+            user_id = ctx.author.id
+
+        async with self.bot.database() as db:
+            data = await db('SELECT * FROM tickets WHERE user_id=$1', user_id)
+        if data:
+            i = data[0]
+            ret = '**{}** has **{}** tickets.'.format(ctx.guild.get_member(i['user_id']), i['ticket_count'])
+        else:
+            ret = 'No tickets.'
+        await ctx.send(ret)
 
 
     @command()
+    @is_owner()
     async def cleartickets(self, ctx:Context):
         '''
         Removes all of the tickets from the database
@@ -32,6 +42,23 @@ class TicketCommands(object):
         async with self.bot.database() as db:
             data = await db('DELETE FROM tickets')
         await ctx.send('Deleted all raffle tickets from the database.')
+
+
+    @command()
+    @is_owner()
+    async def alltickets(self, ctx:Context):
+        '''
+        Removes all of the tickets from the database
+        '''
+
+        async with self.bot.database() as db:
+            data = await db('SELECT user_id, ticket_count FROM tickets')
+        with open('all_tickets.csv', 'w') as a:
+            w = DictWriter(a, ['user_id', 'username', 'ticket_count'])
+            w.writeheader()
+            data = [{**i, 'username': str(self.bot.get_user(i['user_id']))} for i in data]
+            w.writerows(data)
+        await ctx.send(file=File('all_tickets.csv'))
 
 
 def setup(bot:CustomBot):
