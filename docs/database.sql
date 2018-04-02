@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS botname;
-CREATE DATABASE botname;
-USE botname;
+DROP DATABASE IF EXISTS rsbot;
+CREATE DATABASE rsbot;
+USE rsbot;
 
 
 -- Create a table for the user's settings

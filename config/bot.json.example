@@ -1,15 +1,23 @@
 {
     "Bot Token": "",
     "Game": {
-        "name": "@Sparcli help",
+        "name": ".help",
         "type": 2
     },
     "Database": {
         "user": "postgres",
-        "password": "compression",
-        "database": "sparcli",
+        "password": "",
+        "database": "rsbot",
         "host": "127.0.0.1"
     },
-    "API Keys": {
+    "Giveaway": {
+        "channel": 0,
+        "timeout": 20,
+        "duration": 60,
+        "giveaway": 250000
     },
+    "Owner IDs": [
+        0,
+        1
+    ]
 }

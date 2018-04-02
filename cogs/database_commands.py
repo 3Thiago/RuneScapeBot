@@ -7,7 +7,7 @@ from cogs.utils.owner_check import predicate as is_owner
 
 
 def database_to_csv(fp, data):
-    w = DictWriter(fp, list(data[0].keys()))
+    w = DictWriter(fp, list(data[0].keys()), lineterminator='\n')
     w.writeheader()
     data = [{**i} for i in data]
     w.writerows(data)
@@ -39,7 +39,8 @@ class DatabaseCommands(object):
         with open(filename, 'w') as a: 
             database_to_csv(a, data)
         f = File(filename)
-        await ctx.send(file=f)
+        await ctx.author.send(file=f)
+        await ctx.message.add_reaction('\N{THUMBS UP SIGN}')
         remove(filename)
 
 
@@ -56,7 +57,8 @@ class DatabaseCommands(object):
         with open(filename, 'w') as a: 
             database_to_csv(a, data)
         f = File(filename)
-        await ctx.send(file=f)
+        await ctx.author.send(file=f)
+        await ctx.message.add_reaction('\N{THUMBS UP SIGN}')
         remove(filename)
 
 
