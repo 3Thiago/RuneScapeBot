@@ -1,3 +1,4 @@
+from os import remove
 from csv import DictWriter
 from discord import Member, File
 from discord.ext.commands import command, Context
@@ -51,14 +52,21 @@ class TicketCommands(object):
         Removes all of the tickets from the database
         '''
 
+        # Get relevant data
         async with self.bot.database() as db:
             data = await db('SELECT user_id, ticket_count FROM tickets')
+
+        # Save it to a CSV file
         with open('all_tickets.csv', 'w') as a:
             w = DictWriter(a, ['user_id', 'username', 'ticket_count'])
             w.writeheader()
             data = [{**i, 'username': str(self.bot.get_user(i['user_id']))} for i in data]
             w.writerows(data)
+        
         await ctx.send(file=File('all_tickets.csv'))
+
+        # Remove the file after sending it
+        os.remove('all_tickets.csv')
 
 
 def setup(bot:CustomBot):
