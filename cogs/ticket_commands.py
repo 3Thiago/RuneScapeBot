@@ -66,7 +66,7 @@ class TicketCommands(object):
         await ctx.send(file=File('all_tickets.csv'))
 
         # Remove the file after sending it
-        os.remove('all_tickets.csv')
+        remove('all_tickets.csv')
 
 
 def setup(bot:CustomBot):
