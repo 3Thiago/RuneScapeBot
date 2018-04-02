@@ -35,6 +35,7 @@ CREATE TABLE commands_run (
 
 
 CREATE TABLE command_log (
+    id serial,
     user_id bigint,
     message_id bigint,
     guild_id bigint,
@@ -46,18 +47,20 @@ CREATE TABLE command_log (
 
 
 CREATE TABLE modification_log (
+    id serial,
     cashier_id bigint,
     user_id bigint,
     message_id bigint,
     oldscape_mod bigint,
     newscape_mod bigint,
     reason varchar(256),
-    PRIMARY KEY (message_id)
+    PRIMARY KEY (message_id, user_id)
 );
 
 
 CREATE TABLE house_modification_log (
-    message_id bigint REFERENCES modification_log(message_id),
+    id serial,
+    message_id bigint,
     oldscape_mod bigint,
     newscape_mod bigint,
     reason varchar(256),

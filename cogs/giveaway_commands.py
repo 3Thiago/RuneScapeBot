@@ -19,7 +19,7 @@ class GiveawayCommands(object):
         '''
 
         self.bot.giveaway.lastrun = dt(year=2000, month=1, day=1)
-        await ctx.send('Giveaway will run in the next 60 seconds.')
+        await ctx.send('The giveaway has been triggered - it will run within the next 60 seconds.')
 
 
     async def on_message(self, message:Message):

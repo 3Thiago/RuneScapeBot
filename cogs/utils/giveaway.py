@@ -98,6 +98,7 @@ class Giveaway(object):
                             currency=NewScape(), 
                             reason='GIVEAWAY'
                             )
+                    self.counted = set()
 
                     # Tell them about it
                     with e as e:

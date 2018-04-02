@@ -41,7 +41,7 @@ class MoneyCommands(object):
                 message=ctx.message, 
                 cashier=ctx.author, 
                 to=user, 
-                amount=modamount, 
+                amount=amount, 
                 currency=currency_type, 
                 reason='TRANSFER IN'
                 )
@@ -49,7 +49,7 @@ class MoneyCommands(object):
                 message=ctx.message, 
                 cashier=user, 
                 to=ctx.author, 
-                amount=-modamount, 
+                amount=-amount, 
                 currency=currency_type, 
                 reason='TRANSFER OUT'
                 )

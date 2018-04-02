@@ -83,7 +83,7 @@ class RollCommands(object):
         desc = '**'
         if new_tickets:
             desc += 'Along with their {0} new raffle tickets, '.format(new_tickets)
-        desc = '{0.mention} has rolled a {1} on the percentile die and {2} the pot'.format(
+        desc += '{0.mention} has rolled a {1} on the percentile die and {2} the pot'.format(
             ctx.author,
             roll_result,
             {True: 'won', False: 'lost'}[wonroll]
