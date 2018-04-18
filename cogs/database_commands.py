@@ -13,7 +13,7 @@ def database_to_csv(fp, data, *, extra_rows:list=[], update_function=None):
     if update_function:
         for i in data: 
             i.update(update_function(i))
-    w.writerows(data)
+    w.writerows([{i: str(o) for i, o in x.items()} for x in data])
 
 
 class DatabaseCommands(object):
@@ -58,8 +58,11 @@ class DatabaseCommands(object):
             data = await db("SELECT * FROM modification_log WHERE reason='DEPOSIT' or reason='WITHDRAWAL' ORDER BY id DESC")
         filename = 'cash_log.csv'
 
-        update_function = lambda i: {'cashier': str(self.bot.get_user(i['cashier_id'])), 'user':str(self.bot.get_user(i['user_id'])) }
-        with open(filename, 'w') as a: 
+        update_function = lambda i: {
+            'cashier': str(self.bot.get_user(i['cashier_id'])), 
+            'user':    str(self.bot.get_user(i['user_id'])) 
+        }
+        with open(filename, 'w', encoding='utf-8') as a: 
             database_to_csv(a, data, extra_rows=['cashier', 'user'], update_function=update_function)
         f = File(filename)
         await ctx.author.send(file=f)

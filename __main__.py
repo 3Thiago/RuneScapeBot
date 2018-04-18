@@ -38,7 +38,7 @@ async def on_ready():
 
     print('Updating presence... ', end='')
     game = Game(**bot.config['Game'])
-    await bot.change_presence(game=game)
+    await bot.change_presence(activity=game)
     print('updated')
     print('\nAll ready.\n')
 

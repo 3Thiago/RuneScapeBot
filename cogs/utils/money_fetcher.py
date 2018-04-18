@@ -41,7 +41,7 @@ def money_fetcher(user_money):
     return int(ret) * (10**modifier)
 
 
-def money_displayer(money_amount):
+def money_displayer(money_amount, accurate=False):
     '''
     Turns a given money amount into a good ol' string
     '''
@@ -54,6 +54,19 @@ def money_displayer(money_amount):
             money_amount = money_amount[:-1]
     except IndexError:
         pass
+
+    if accurate == False and len(money_amount) > 3:
+        extra = len(money_amount[4:])
+        money_amount = money_amount[:4]
+        counter += extra
+
     money_amount += '0' * (counter % 3)
+
+    # See if we can make it into a.cdX instead of adc0Y
+    if len(money_amount) == 4:
+        while money_amount[-1] == '0': money_amount = money_amount[:-1]
+        counter += 3
+        money_amount = money_amount[0] + '.' + money_amount[1:]
+
     money_amount += {3: 'K', 6: 'M', 9: 'B', 0: ''}[(counter // 3) * 3]
     return money_amount
