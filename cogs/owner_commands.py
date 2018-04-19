@@ -125,15 +125,17 @@ class OwnerCommands(object):
 
 
     @profile.command()
-    async def game(self, ctx:Context, game_type:int, *, name:str=None):
+    async def game(self, ctx:Context, game_type:int=None, *, name:str=None):
         '''
         Change the game that the bot is playing
         '''
 
         if not name: 
-            name = self.bot.config['Game']['Name']
-        game = Game(name=name, type=game_type, url=self.bot.config['Game']['Twitch URL'])
-        await self.bot.change_presence(game=game)
+            name = self.bot.config['Game']['name']
+        if not game_type:
+            game_type = self.bot.config['Game']['type']
+        game = Game(name=name, type=game_type)
+        await self.bot.change_presence(activity=game)
         await ctx.send('Done.')
 
 

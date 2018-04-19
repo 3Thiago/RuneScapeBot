@@ -40,16 +40,16 @@ class ErrorEvent(object):
         elif isinstance(error, CommandNotFound):
             pass  # Don't even log a command not found
         else:
-            # await ctx.send('The checks for this command have failed.')
+            await ctx.send('{!s}'.format(error))
             # raise error
-            print(
-                'Error Event:\n'
-                ' - Location {0.guild.id}/{0.channel.id}/{0.author.id}\n'
-                ' - Message {0.message.clean_content}\n - Error {1}'.format(
-                    ctx, error
-                )
-            )
-            raise error
+            # print(
+            #     'Error Event:\n'
+            #     ' - Location {0.guild.id}/{0.channel.id}/{0.author.id}\n'
+            #     ' - Message {0.message.clean_content}\n - Error {1}'.format(
+            #         ctx, error
+            #     )
+            # )
+            # raise error
 
 
 def setup(bot:Bot):
