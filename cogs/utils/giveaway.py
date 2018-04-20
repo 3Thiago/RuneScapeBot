@@ -1,3 +1,4 @@
+from random import choice
 from datetime import datetime as dt, timedelta
 from asyncio import sleep
 from cogs.utils.custom_embed import CustomEmbed
@@ -45,8 +46,8 @@ class Giveaway(object):
             if dt.now() >= self.lastrun + timedelta(minutes=self.timeout):
 
                 # Make a dice for the bot
-                seed = 'GIVEAWAY ' + str(dt.now())
-                die = ProvablyFair(user_id=self.bot.user.id, client_seed=seed)
+                # seed = 'GIVEAWAY ' + str(dt.now())
+                # die = ProvablyFair(user_id=self.bot.user.id, client_seed=seed)
 
                 # Tell the users about it
                 with CustomEmbed() as e:
@@ -71,22 +72,23 @@ class Giveaway(object):
                 self.running = False
 
                 # Generate a random number
-                random = die.get_random()
+                # random = die.get_random()
                 users = list(self.counted)
 
                 # Check that *someone* entered
                 if users:
 
-                    # Get a user from that
-                    randint = random['result'] * 10
-                    counter = 0
-                    while randint > 0:
-                        try:
-                            chosen_user = users[counter]
-                        except IndexError:
-                            chosen_user = users[0]
-                            counter = 0
-                        randint -= 1
+                    # # Get a user from that
+                    # randint = random['result'] * 10
+                    # counter = 0
+                    # while randint > 0:
+                    #     try:
+                    #         chosen_user = users[counter]
+                    #     except IndexError:
+                    #         chosen_user = users[0]
+                    #         counter = 0
+                    #     randint -= 1
+                    chosen_user = choice(users)
 
                     # Wew they won
                     async with self.bot.database() as db:
