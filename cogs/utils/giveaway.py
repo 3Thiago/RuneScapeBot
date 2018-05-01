@@ -40,7 +40,7 @@ class Giveaway(object):
         # Get stuff ready
         await self.bot.wait_until_ready()
         channel = self.bot.get_channel(self.channel_id)
-        remaining_time = lambda x: e.description = 'Giveaway of **{} RS3**! Type a message within the next {} seconds to be entered!'.format(money_displayer(self.amount), x)
+        remaining_time = lambda x: 'Giveaway of **{} RS3**! Type a message within the next {} seconds to be entered!'.format(money_displayer(self.amount), x)
 
         # Loop until the bot is closed
         while not self.bot.is_closed():
