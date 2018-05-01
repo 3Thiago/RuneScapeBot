@@ -74,8 +74,7 @@ class RollCommands(object):
             if segment == 'MID' and wonroll: modamount = 3.5 * amount
 
         # See if they have any raffle tickets
-        if str(currency_type) == 'oldscape': rafflemod = 4 * 10**6
-        else: rafflemod = 25 * 10**6
+        rafflemod = self.bot.config['Ticket Thresholds'][str(currency_type)]
         if amount: new_tickets = amount // rafflemod
         else: new_tickets = 0
 

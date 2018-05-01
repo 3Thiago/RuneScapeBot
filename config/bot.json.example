@@ -16,6 +16,10 @@
         "duration": 60,
         "giveaway": 250000
     },
+    "Ticket Thresholds": {
+        "newscape": 25000000,
+        "oldscape": 4000000
+    },
     "Owner IDs": [
         0,
         1
