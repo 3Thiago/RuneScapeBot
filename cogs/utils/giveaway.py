@@ -40,19 +40,15 @@ class Giveaway(object):
         # Get stuff ready
         await self.bot.wait_until_ready()
         channel = self.bot.get_channel(self.channel_id)
+        remaining_time = lambda x: e.description = 'Giveaway of **{} RS3**! Type a message within the next {} seconds to be entered!'.format(money_displayer(self.amount), x)
 
         # Loop until the bot is closed
         while not self.bot.is_closed():
             if dt.now() >= self.lastrun + timedelta(minutes=self.timeout):
 
-                # Make a dice for the bot
-                # seed = 'GIVEAWAY ' + str(dt.now())
-                # die = ProvablyFair(user_id=self.bot.user.id, client_seed=seed)
-
                 # Tell the users about it
                 with CustomEmbed() as e:
-                    e.description = 'Giveaway of **{} RS3**! Type a message within the next {} seconds to be entered!'.format(money_displayer(self.amount), self.duration)
-                    # e.set_footer(text='Hashed Server Seed: {}'.format(die.server_seed_hash))
+                    e.description = remaining_time(self.duration)
                     e.colour = GREEN
                 message = await channel.send(embed=e)
                 self.running = True 
@@ -60,37 +56,38 @@ class Giveaway(object):
 
                 # Wait for messages to roll in
                 current_users = 0
+                running_duration = 0
+                edited = False
+                duration_editor = 5  # Change the embed every x seconds
+
                 while dt.now() < self.lastrun + timedelta(seconds=self.duration):
+
+                    working_running_duration = (dt.now() - (self.lastrun + timedelta(seconds=self.duration))).total_seconds()
+                    working_running_duration = int(running_duration / duration_editor)
+                    if working_running_duration > running_duration:
+                        running_duration = working_running_duration
+                        e.description = remaining_time(self.duration - (working_running_duration * duration_editor))
+                        edited = True
+
                     if len(self.counted) > current_users:
                         current_users = len(self.counted)
                         try:
                             e.set_field_at(0, name='Entered Users', value=current_users)
                         except Exception:
                             e.add_new_field('Entered Users', current_users)
-                        await message.edit(embed=e)
+                        edited = True
+                    await message.edit(embed=e)
                     await sleep(1)
+
                 self.running = False
 
                 # Generate a random number
-                # random = die.get_random()
                 users = list(self.counted)
 
                 # Check that *someone* entered
                 if users:
 
-                    # # Get a user from that
-                    # randint = random['result'] * 10
-                    # counter = 0
-                    # while randint > 0:
-                    #     try:
-                    #         chosen_user = users[counter]
-                    #     except IndexError:
-                    #         chosen_user = users[0]
-                    #         counter = 0
-                    #     randint -= 1
                     chosen_user = choice(users)
-
-                    # Wew they won
                     async with self.bot.database() as db:
                         await db.modify_user_currency(chosen_user, self.amount, NewScape())
                         await db.log_user_mod(
@@ -106,11 +103,8 @@ class Giveaway(object):
                     with e as e:
                         e.description = 'Giveaway over!'
                         e.colour = RED
-                        # e.set_footer(text='Hashed Server Seed: {0.server_seed_hash}; Server Seed: {0.server_seed}; Client Seed: {0.client_seed}; Nonce: {0.nonce}'.format(die))
-                    await message.edit(
-                        content='<@{}> you just won **{} RS3**!'.format(chosen_user, money_displayer(self.amount)),
-                        embed=e
-                        )
+                    await message.edit(embed=e)
+                    await channel.send('<@{}> you just won **{} RS3**!'.format(chosen_user, money_displayer(self.amount)))
 
                 else:
 
