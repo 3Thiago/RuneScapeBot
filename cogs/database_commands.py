@@ -39,7 +39,7 @@ class DatabaseCommands(object):
         async with self.bot.database() as db:
             data = await db('SELECT * FROM modification_log ORDER BY id DESC')
         filename = 'modification_log.csv'
-        with open(filename, 'w') as a: 
+        with open(filename, 'w', encoding='utf-8') as a: 
             database_to_csv(a, data)
         f = File(filename)
         await ctx.author.send(file=f)
@@ -80,7 +80,7 @@ class DatabaseCommands(object):
         async with self.bot.database() as db:
             data = await db('SELECT * FROM house_modification_log ORDER BY id DESC')
         filename = 'house_modification_log.csv'
-        with open(filename, 'w') as a: 
+        with open(filename, 'w', encoding='utf-8') as a: 
             database_to_csv(a, data)
         f = File(filename)
         await ctx.author.send(file=f)
