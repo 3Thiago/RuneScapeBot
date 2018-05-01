@@ -1,6 +1,5 @@
 from datetime import datetime as dt, timedelta
 from time import time
-from datetime import datetime as dt
 from json import load
 from discord import Message
 from discord.ext import commands
@@ -14,18 +13,45 @@ class CustomBot(commands.AutoShardedBot):
 
     def __init__(self, **kwargs):
         super().__init__(command_prefix=self.get_prefix, **kwargs)
-        self.config = {}  # Used to store the bot config file
-        self.default_prefix = kwargs['default_prefix']  # Used as a fallback for the prefix
-        self.startup = dt.now()  # Used to check uptime
+        
+        # Store the default command prefix to be used in a method
+        self.default_prefix = kwargs['default_prefix']
+        
+        # Used to compute uptime
+        self.startup = dt.now()
+
+        # Cache the config in case the file can't be read
+        self._config = {}
         with open('./config/bot.json') as a:
             data = load(a)
-        self.config = data
+        self._config = data
+
+        # Setup database connections
         self.database = DatabaseConnection
         DatabaseConnection.config = data['Database']
+        DatabaseConnection.bot = self
+
+        # Cached dice for the users
         self._die = {}
 
+        # Start the giveaway task
         self.giveaway = Giveaway(self)
         self.giveaway_task = self.loop.create_task(self.giveaway.auto_giveaway())
+
+
+    @property
+    def config(self):
+        '''
+        Read and get the config file every time it's called so as to reload everything
+        '''
+
+        try:
+            with open('./config/bot.json') as a:
+                data = load(a)
+            self._config = data
+        except Exception as e:
+            pass
+        return self._config
 
 
     def get_die(self, user_id):
