@@ -71,6 +71,7 @@ CREATE TABLE house_modification_log (
 CREATE TABLE tickets (
     user_id bigint,
     ticket_count integer,
-    PRIMARY KEY (user_id)
+    day integer DEFAULT null,
+    PRIMARY KEY (user_id, day)
 );
 

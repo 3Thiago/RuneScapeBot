@@ -4,6 +4,8 @@ from cogs.utils.currency_validator import OldScape, NewScape
 
 class DatabaseConnection(_Base):
 
+    bot = None
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -139,15 +141,18 @@ class DatabaseConnection(_Base):
             await self.run(sql, message_id, -oldscape_change, -newscape_change, reason)
 
 
-    async def add_tickets_for_user(self, user, ticket_count):
+    async def add_tickets_for_user(self, user, ticket_count, day=None):
         '''
         Adds new tickets to the counter for a given user
         '''
 
+        if not day:
+            day = self.bot.get_current_day_number()
+
         try:
-            sql = 'INSERT INTO tickets VALUES ($1, $2)'
-            await self.run(sql, user.id, ticket_count)
+            sql = 'INSERT INTO tickets VALUES ($1, $2, $3)'
+            await self.run(sql, user.id, ticket_count, day)
         except Exception:
-            sql = 'UPDATE tickets SET ticket_count=ticket_count+$1 WHERE user_id=$2'
-            await self.run(sql, ticket_count, user.id)
+            sql = 'UPDATE tickets SET ticket_count=ticket_count+$1 WHERE user_id=$2 AND day=$3'
+            await self.run(sql, ticket_count, user.id, day)
 

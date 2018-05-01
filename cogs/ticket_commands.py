@@ -38,12 +38,33 @@ class TicketCommands(object):
             user_id = ctx.author.id
 
         async with self.bot.database() as db:
-            data = await db('SELECT * FROM tickets WHERE user_id=$1', user_id)
-        if data:
-            i = data[0]
-            ret = '**{}** has **{}** tickets.'.format(ctx.guild.get_member(i['user_id']), i['ticket_count'])
+            data = await db('SELECT * FROM tickets WHERE user_id=$1 AND day>$2-7 ORDER BY day DESC', user_id, self.bot.get_current_day_number())
+        if not data:
+            await ctx.send('No tickets.')
+            return
+
+        # Counter to sum up this week's tickets
+        total = 0
+
+        # Get today data
+        current_day_number = self.bot.get_current_day_number()
+
+        # See if they have anything today
+        today = data[0]
+        if today['day'] == current_day_number:
+            ticket_count = today['ticket_count']
         else:
-            ret = 'No tickets.'
+            ticket_count = 0
+        plural = '' if ticket_count == 1 else 's'
+        ret = '**Today:** {} ticket{}\n'.format(ticket_count, plural)
+
+        # Add in the week's data
+        for i in data:
+            total += i['ticket_count']
+        plural = '' if total == 1 else 's'
+        ret +='**This week:** {} ticket{}\n'.format(total, plural)
+
+        # Send to user
         await ctx.send(ret)
 
 
@@ -71,7 +92,7 @@ class TicketCommands(object):
             data = await db('SELECT user_id, ticket_count FROM tickets')
 
         # Save it to a CSV file
-        with open('all_tickets.csv', 'w') as a:
+        with open('all_tickets.csv', 'w', encoding='utf-8') as a:
             w = DictWriter(a, ['user_id', 'username', 'ticket_count', 'ticket_numbers'])
             w.writeheader()
             data = [{**i, 'username': str(self.bot.get_user(i['user_id'])), 'ticket_numbers': TicketGetter.get(i['ticket_count'])} for i in data]
@@ -95,9 +116,9 @@ class TicketCommands(object):
         # Modify database
         async with self.bot.database() as db:
             try:
-                await db('INSERT INTO tickets VALUES ($1, $2)', user.id, amount)
+                await db('INSERT INTO tickets VALUES ($1, $2, $3)', user.id, amount, self.bot.get_current_day_number())
             except Exception:
-                await db('UPDATE tickets SET ticket_count=ticket_count+$1 WHERE user_id=$2', amount, user.id)
+                await db('UPDATE tickets SET ticket_count=ticket_count+$1 WHERE user_id=$2 AND day=$3', amount, user.id, self.bot.get_current_day_number())
 
         # Return to user
         await ctx.send("Ticket count for **{!s}** has been updated.".format(user))
@@ -113,10 +134,10 @@ class TicketCommands(object):
         # Modify database
         async with self.bot.database() as db:
             try:
-                await db('UPDATE tickets SET ticket_count=ticket_count-$1 WHERE user_id=$2', amount, user.id)
-                t = await db('SELECT ticket_count FROM tickets WHERE user_id=$1', user.id)
+                await db('UPDATE tickets SET ticket_count=ticket_count-$1 WHERE user_id=$2 AND day=$3', amount, user.id, self.bot.get_current_day_number())
+                t = await db('SELECT ticket_count FROM tickets WHERE user_id=$1 AND day=$2', user.id, self.bot.get_current_day_number())
                 if t[0]['ticket_count'] <= 0:
-                    await db('DELETE FROM tickets WHERE user_id=$1', user.id)
+                    await db('DELETE FROM tickets WHERE user_id=$1 AND day=$2', user.id, self.bot.get_current_day_number())
             except Exception:
                 await ctx.send('That user has no tickets already.')
                 return

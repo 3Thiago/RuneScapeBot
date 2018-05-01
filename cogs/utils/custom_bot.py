@@ -1,3 +1,5 @@
+from datetime import datetime as dt, timedelta
+from time import time
 from datetime import datetime as dt
 from json import load
 from discord import Message
@@ -52,6 +54,21 @@ class CustomBot(commands.AutoShardedBot):
 
     def get_uptime(self):
         return dt.now() - self.startup
+
+
+    @staticmethod
+    def get_current_day_number():
+        return int(time() // 86400)
+
+
+    @staticmethod
+    def get_day_names():
+        days = []
+        x = dt.now()
+        for i in range(7):
+            days.append(x.strftime('%A'))
+            x += timedelta(days=1)
+        return days
 
 
     async def get_prefix(self, message:Message):
