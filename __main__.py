@@ -11,9 +11,10 @@ bot = CustomBot(
 
 # List all files in the Cogs directory that end in .py
 extensions = []
-for filepath in glob('./cogs/[!_]*.py'):
-    file = filepath.replace('\\', '/').split('/')[-1]  # Linux + Windows compatible
-    filename = 'cogs.' + file[:-3]  # Remove .py
+cog_files = glob('./cogs/[!_]*.py') + glob('./cogs/games/[!_]*.py')
+for filepath in cog_files:
+    file = filepath.replace('\\', '/').replace('/', '.')  # Linux + Windows compatible
+    filename = file[2:-3]  # Remove .py and ./
     extensions.append(filename)
 
 

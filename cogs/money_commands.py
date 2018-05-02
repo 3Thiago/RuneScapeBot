@@ -81,8 +81,8 @@ class MoneyCommands(object):
         await ctx.send('Your currency mode has been updated.')
 
 
-    @command(aliases=['wallet'])
-    async def balance(self, ctx:Context, other_user:Member=None):
+    @command(aliases=['balance', 'w'])
+    async def wallet(self, ctx:Context, other_user:Member=None):
         '''
         Gives you your current balance
         '''
