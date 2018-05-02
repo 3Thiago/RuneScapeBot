@@ -1,3 +1,4 @@
+from traceback import format_exc
 from discord.ext.commands import Bot, CheckFailure, Context, MissingPermissions, BotMissingPermissions
 from discord.ext.commands import NoPrivateMessage, NotOwner, MissingRequiredArgument, BadArgument, DisabledCommand
 from discord.ext.commands import UserInputError, TooManyArguments, CommandNotFound
@@ -34,22 +35,16 @@ class ErrorEvent(object):
         elif isinstance(error, MissingRequiredRole):
             await ctx.send('You are missing a required role `{0!s}`.'.format(error))
         elif isinstance(error, NoDiceGenerated):
-            await ctx.send('You need to set a dice before you can use this command.')
+            await ctx.send('You need to set a dice (with `setdice`) before you can use this command.')
         elif isinstance(error, NoCurrencySet):
-            await ctx.send('You need to set a currency before you can use this command.')
+            await ctx.send('You need to set a currency (with `setmode`) before you can use this command.')
         elif isinstance(error, CommandNotFound):
             pass  # Don't even log a command not found
         else:
-            await ctx.send('{!s}'.format(error))
-            # raise error
-            # print(
-            #     'Error Event:\n'
-            #     ' - Location {0.guild.id}/{0.channel.id}/{0.author.id}\n'
-            #     ' - Message {0.message.clean_content}\n - Error {1}'.format(
-            #         ctx, error
-            #     )
-            # )
-            # raise error
+            try:
+                raise error
+            except Exception as e:
+                await ctx.send('```py\n' + format_exc() + '```')
 
 
 def setup(bot:Bot):
