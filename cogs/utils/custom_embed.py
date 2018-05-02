@@ -45,8 +45,8 @@ class CustomEmbed(Embed):
     def add_new_field(self, name:str, value:str, inline:bool=True):
         self.add_field(name=name, value=value, inline=inline)
 
-    def add_blank_field(self):
-        self.add_new_field('\u200B', '\u200B', False)
+    def add_blank_field(self, inline:bool=False):
+        self.add_new_field('\u200B', '\u200B', inline=inline)
 
     def use_random_colour(self):
         self.colour = randint(0x1, 0xFFFFFF)

@@ -3,6 +3,7 @@ from cogs.utils.custom_bot import CustomBot
 from cogs.utils.custom_embed import CustomEmbed
 from cogs.utils.money_fetcher import money_fetcher, money_displayer
 from cogs.utils.currency_checks import has_dice, has_set_currency
+from cogs.utils.random_from_list import random_from_list
 
 
 class HotColdCommands(object):
@@ -75,8 +76,7 @@ class HotColdCommands(object):
 
         # See if they won or lost
         roll_result = provenfair['result']
-        roll_calc = [i for i in range(1, 8) if roll_result >= (100*i)/7]
-        rolled_colour = all_colours[len(roll_calc)]
+        rolled_colour = random_from_list(roll_result, all_colours)
         wonroll = segfunc(rolled_colour)
 
         # See how much to modify by
