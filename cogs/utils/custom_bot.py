@@ -54,6 +54,18 @@ class CustomBot(commands.AutoShardedBot):
         return self._config
 
 
+    def restart_giveaway(self):
+        '''
+        Restarts the giveaway task
+        '''
+
+        self.giveaway_task.cancel()
+        from cogs.utils.giveaway import Giveaway  # Re-import because I could have changed it
+        global Giveaway  # So it overrides the previously imported one
+        self.giveaway = Giveaway(self)
+        self.giveaway_task = self.loop.create_task(self.giveaway.auto_giveaway())
+
+
     def get_die(self, user_id):
         return self._die.get(user_id)
 

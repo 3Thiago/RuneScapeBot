@@ -32,6 +32,18 @@ class Giveaway(object):
         # self.lastrun = dt(year=2000, month=1, day=1)
 
 
+    def regen_config(self):
+        '''
+        Re-reads the config file
+        '''
+
+        self.config = self.bot.config['Giveaway']
+        self.channel_id = self.config['channel']
+        self.timeout = self.config['timeout']
+        self.duration = self.config['duration']
+        self.amount = self.config['giveaway']
+
+
     async def auto_giveaway(self):
         '''
         Runs the giveaway code for the bot
@@ -39,76 +51,91 @@ class Giveaway(object):
 
         # Get stuff ready
         await self.bot.wait_until_ready()
-        channel = self.bot.get_channel(self.channel_id)
-        remaining_time = lambda x: 'Giveaway of **{} RS3**! Type a message within the next {} seconds to be entered!'.format(money_displayer(self.amount), x)
 
         # Loop until the bot is closed
         while not self.bot.is_closed():
             if dt.now() >= self.lastrun + timedelta(minutes=self.timeout):
+                await self.run_giveaway()
+            await sleep(5)
 
-                # Tell the users about it
-                with CustomEmbed() as e:
-                    e.description = remaining_time(self.duration)
-                    e.colour = GREEN
-                message = await channel.send(embed=e)
-                self.running = True 
-                self.lastrun = dt.now()
 
-                # Wait for messages to roll in
-                current_users = 0
-                running_duration = 0
-                edited = False
-                duration_editor = 5  # Change the embed every x seconds
+    async def run_giveaway(self):
+        '''
+        Runs the giveaway ie the channel sending and tracking
+        '''
 
-                while dt.now() < self.lastrun + timedelta(seconds=self.duration):
+        remaining_time = lambda x: 'Giveaway of **{} RS3**! Type a message within the next {} seconds to be entered!'.format(money_displayer(self.amount), x)
 
-                    working_running_duration = (dt.now() - (self.lastrun + timedelta(seconds=self.duration))).total_seconds()
-                    working_running_duration = int(running_duration / duration_editor)
-                    if working_running_duration > running_duration:
-                        running_duration = working_running_duration
-                        e.description = remaining_time(self.duration - (working_running_duration * duration_editor))
-                        edited = True
+        # Get the channel
+        self.regen_config()
+        channel = self.bot.get_channel(self.channel_id)
 
-                    if len(self.counted) > current_users:
-                        current_users = len(self.counted)
-                        try:
-                            e.set_field_at(0, name='Entered Users', value=current_users)
-                        except Exception:
-                            e.add_new_field('Entered Users', current_users)
-                        edited = True
-                    await message.edit(embed=e)
-                    await sleep(1)
+        # Tell the users about it
+        with CustomEmbed() as e:
+            e.description = remaining_time(self.duration)
+            e.colour = GREEN
+        message = await channel.send(embed=e)
+        self.running = True  # For the on_message flag
+        self.lastrun = dt.now()
 
-                self.running = False
+        # Wait for messages to roll in
+        current_users = 0
+        running_duration = 0
+        edited = False
+        duration_editor = 5  # Change the embed every x seconds
 
-                # Generate a random number
-                users = list(self.counted)
+        while dt.now() < self.lastrun + timedelta(seconds=self.duration):
 
-                # Check that *someone* entered
-                if users:
+            # Check to see if the thing should be edited
+            working_running_duration = (dt.now() - (self.lastrun + timedelta(seconds=self.duration))).total_seconds()
+            working_running_duration = int(running_duration / duration_editor)
+            if working_running_duration > running_duration:
+                running_duration = working_running_duration
+                e.description = remaining_time(self.duration - (working_running_duration * duration_editor))
+                edited = True
 
-                    chosen_user = choice(users)
-                    async with self.bot.database() as db:
-                        await db.modify_user_currency(chosen_user, self.amount, NewScape())
-                        await db.log_user_mod(
-                            message=message, 
-                            to=chosen_user, 
-                            amount=self.amount, 
-                            currency=NewScape(), 
-                            reason='GIVEAWAY'
-                            )
-                    self.counted = set()
+            # Check if the entered users is larger than what's displayed
+            if len(self.counted) > current_users:
+                current_users = len(self.counted)
+                try:
+                    e.set_field_at(0, name='Entered Users', value=current_users)
+                except Exception:
+                    e.add_new_field('Entered Users', current_users)
+                edited = True
 
-                    # Tell them about it
-                    with e as e:
-                        e.description = 'Giveaway over!'
-                        e.colour = RED
-                    await message.edit(embed=e)
-                    await channel.send('<@{}> you just won **{} RS3**!'.format(chosen_user, money_displayer(self.amount)))
+            # Whether or not to edit
+            if edited:
+                await message.edit(embed=e)
+            await sleep(1)
 
-                else:
+        self.running = False
 
-                    # Nobody entered
-                    await message.edit(content='Guess nobody wants any free money then :/')
+        # Generate a random number
+        users = list(self.counted)
 
-            await sleep(60)
+        # Change the embed
+        e.description = 'Giveaway over!'
+        e.colour = RED
+
+        # Check that *someone* entered
+        if users:
+            chosen_user = choice(users)
+            async with self.bot.database() as db:
+                await db.modify_user_currency(chosen_user, self.amount, NewScape())
+                await db.log_user_mod(
+                    message=message, 
+                    to=chosen_user, 
+                    amount=self.amount, 
+                    currency=NewScape(), 
+                    reason='GIVEAWAY'
+                    )
+            self.counted = set()
+
+            # Tell them about it
+            await message.edit(embed=e)
+            await channel.send('<@{}> you just won **{} RS3**!'.format(chosen_user, money_displayer(self.amount)))
+            return
+
+        # Nobody entered
+        await message.edit(content='Guess nobody wants any free money then :/', embed=e)
+        return
