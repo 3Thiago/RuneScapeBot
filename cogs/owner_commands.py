@@ -199,14 +199,14 @@ class OwnerCommands(object):
 
 
     @command(aliases=['rld'])
-    async def reload(self, ctx:Context, *cog_name:str):
+    async def reload(self, ctx:Context, *, cog_name:str):
         '''
         Unloads a cog from the bot
         '''
 
-        self.bot.unload_extension('cogs.' + '_'.join([i.lower() for i in cog_name]))
+        self.bot.unload_extension('cogs.' + cog_name.lower())
         try:
-            self.bot.load_extension('cogs.' + '_'.join([i.lower() for i in cog_name]))
+            self.bot.load_extension('cogs.' + cog_name.lower())
         except Exception as e:
             await ctx.send('```py\n' + format_exc() + '```')
             return

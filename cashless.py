@@ -10,7 +10,7 @@ bot = CustomBot(
 
 
 # List all files in the Cogs directory that end in .py
-extensions = ['cogs.owner_commands']
+extensions = ['cogs.owner_commands', 'cogs.error_event']
 cog_files = glob('./cogs/cashless games/[!_]*.py')
 for filepath in cog_files:
     file = filepath.replace('\\', '/').replace('/', '.')  # Linux + Windows compatible
@@ -23,6 +23,8 @@ async def on_ready():
     print('Booted (cashless) and ready for action')
     print(' - {0.user}'.format(bot))
     print(' - {0.user.id}'.format(bot))
+
+    await bot.run_database_setup()
 
     print('Loading extensions...')
     for ext in extensions:
