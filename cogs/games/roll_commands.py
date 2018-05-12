@@ -11,10 +11,10 @@ class RollCommands(object):
         self.bot = bot
 
 
-    @command(aliases=['roll', 'die'])
+    @command(aliases=['dice', 'die'])
     @has_dice()
     @has_set_currency()
-    async def dice(self, ctx:Context, segment:str=None, amount:str=None):
+    async def roll(self, ctx:Context, segment:str=None, amount:str=None):
         '''
         Rolls a die for you
         '''

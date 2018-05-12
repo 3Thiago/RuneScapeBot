@@ -32,6 +32,7 @@ async def on_ready():
             bot.load_extension(ext)
             print(' - Loaded extension', ext)
         except Exception as e:
+            # raise e
             exc = '{}: {}'.format(type(e).__name__, e)
             print(' - Failed to load extension {}\n       {}'.format(ext, exc))
 

@@ -38,7 +38,10 @@ def money_fetcher(user_money):
             return None
 
     # Calculate and return
-    return int(ret) * (10**modifier)
+    try:
+        return int(ret) * (10**modifier)
+    except ValueError:
+        return 0
 
 
 def money_displayer(money_amount, accurate=False):

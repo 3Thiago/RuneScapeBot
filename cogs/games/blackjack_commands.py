@@ -65,7 +65,7 @@ class BlackjackCommands(object):
 
         try:
             game, role = Game.get_game(ctx.author.id)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return
 
         # Make sure the right person is playing
@@ -84,19 +84,22 @@ class BlackjackCommands(object):
 
         # Get random card
         getattr(game, '{}_hand'.format(role)).append(random_card(user_random['result']))
+        hand = getattr(game, '{}_hand'.format(role))
         getattr(game, '{}_random'.format(role)).append(user_random)
-        if game.is_bust:
+        if game.is_hand_bust(hand):
             if game.dealer_turn:
                 await self.switch_blackjack_turn(ctx)
             else:
                 await self.end_blackjack_game(ctx)
             return
-        if game.is_21:
+        if game.is_hand_21(hand):
             await self.switch_blackjack_turn(ctx)
             return
+        if min(game.get_value_of_hand(game.dealer_hand)) >= 17 and game.dealer_turn:
+            await self.end_blackjack_game(ctx)
+            return
 
-        # Edit display
-        # await game.message.edit(embed=game.embed)
+        # Display
         await ctx.send(embed=game.embed)
 
 
@@ -107,7 +110,7 @@ class BlackjackCommands(object):
 
         try:
             game, role = Game.get_game(ctx.author.id)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return
 
         # Make sure the right person is playing
@@ -120,21 +123,18 @@ class BlackjackCommands(object):
 
         # See if you need to stop the game
         if role == 'dealer': 
-            try: del Game.running_games[game.dealer]
-            except KeyError as e: pass
-            try: del Game.running_games[game.bettor]
-            except KeyError as e: pass
-
-            e = game.embed
-            e.description = ''
-            # await game.message.edit(content='Game of <@{}> and <@{}> is completed.'.format(game.bettor, game.dealer), embed=e)
-            await ctx.send('Game of <@{}> and <@{}> is completed.'.format(game.bettor, game.dealer), embed=e)
+            await self.end_blackjack_game(ctx)
 
 
         # Switch players
         else:
             game.dealer_turn = True
-            # await game.message.edit(content='It is now <@{}>\'s turn.'.format(game.dealer), embed=game.embed)
+            if game.is_hand_21(game.dealer_hand):
+                await self.end_blackjack_game(ctx)
+                return
+            elif min(game.get_value_of_hand(game.dealer_hand)) >= 17:
+                await self.end_blackjack_game(ctx)
+                return
             await ctx.send('It is now <@{}>\'s turn.'.format(game.dealer), embed=game.embed)
 
 
@@ -145,7 +145,7 @@ class BlackjackCommands(object):
 
         try:
             game, role = Game.get_game(ctx.author.id)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return
 
         try: del Game.running_games[game.dealer]
@@ -155,6 +155,7 @@ class BlackjackCommands(object):
 
         e = game.embed
         e.description = ''
+        e.colour = 0xff1111
         await ctx.send('Game of <@{}> and <@{}> is completed.'.format(game.bettor, game.dealer), embed=e)
 
 
