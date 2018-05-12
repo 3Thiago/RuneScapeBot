@@ -26,13 +26,9 @@ class Game(object):
         self.bettor_hand = []
         self.dealer_turn = False
 
-        # Random data
-
         # Make it easier on myself to grab games
         self.running_games[dealer] = (self, 'dealer')
         self.running_games[bettor] = (self, 'bettor')
-
-        self.d = None
 
 
     @staticmethod
@@ -128,3 +124,22 @@ class Game(object):
     @classmethod
     def is_hand_21(cls, hand) -> bool:
         return max(cls.get_value_of_hand(hand)) == 21
+
+    @property
+    def winner(self):
+        '''
+        Returns the ID of the user who won the game
+        '''
+
+        if self.is_hand_bust(self.bettor_hand):
+            # bettor is bust
+            return (self.dealer, 'dealer')
+        else:
+            if self.is_hand_bust(self.dealer_hand):
+                # Dealer is bust
+                return (self.bettor, 'bettor')
+
+        # return who has the highest value
+        if self.get_value_of_hand(self.dealer_hand) >= self.get_value_of_hand(self.bettor_hand):
+            return (self.dealer , 'dealer')
+        return (self.bettor, 'bettor')

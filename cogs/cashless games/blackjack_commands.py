@@ -6,6 +6,7 @@ from cogs.utils.random_from_list import random_from_list
 from cogs.utils.custom_errors import NoDiceGenerated
 from cogs.utils.cards import CARD_CLUBS
 from cogs.utils.blackjack_game import Game
+from cogs.utils.currency_checks import has_dice
 
 
 def random_card(roll:float):
@@ -16,12 +17,12 @@ class BlackjackCommands(object):
 
     def __init__(self, bot:CustomBot):
         self.bot = bot
-        self.running_games = [] 
 
 
     @command()
+    @has_dice()
     @has_role('Host')
-    async def bj(self, ctx:Context, user:Member):
+    async def bj(self, ctx:Context, user:Member, amount:int=0):
         '''
         Gives you a nice fake game of blackjack to play
         '''
@@ -32,7 +33,6 @@ class BlackjackCommands(object):
 
         # Make a new game object for them to use
         game = Game(ctx.author.id, user.id)
-        # self.running_games.append(game)
 
         # Get the user some cards
         user_die = self.bot.get_die(user.id)
@@ -153,10 +153,19 @@ class BlackjackCommands(object):
         try: del Game.running_games[game.bettor]
         except KeyError as e: pass
 
+        # Store the newly-rolled dice
+        dice = [
+            self.bot.get_die(game.dealer.id),
+            self.bot.get_die(game.bettor.id)
+        ]
+        async with self.bot.database() as db:
+            await db.store_die(dice[0])
+            await db.store_die(dice[1])
+
         e = game.embed
         e.description = ''
         e.colour = 0xff1111
-        await ctx.send('Game of <@{}> and <@{}> is completed.'.format(game.bettor, game.dealer), embed=e)
+        await ctx.send('<@{0[0]}> wins!'.format(game.winner), embed=e)
 
 
     @command(hidden=True)

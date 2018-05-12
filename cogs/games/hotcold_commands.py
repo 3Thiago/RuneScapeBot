@@ -11,13 +11,13 @@ class HotColdCommands(object):
     def __init__(self, bot:CustomBot):
         self.bot = bot
         self.flower_colours = {
-          "ORANGE": "https://vignette1.wikia.nocookie.net/runescape2/images/9/99/Orange_flowers_detail.png/revision/latest?cb=20160918221429",
-          "RED": "https://vignette4.wikia.nocookie.net/runescape2/images/6/6c/Red_flowers_detail.png/revision/latest?cb=20160918221431",
-          "YELLOW": "https://vignette.wikia.nocookie.net/runescape2/images/a/a6/Yellow_flowers_detail.png/revision/latest?cb=20160918221432",
-          "BLUE": "https://vignette4.wikia.nocookie.net/runescape2/images/d/d6/Blue_flowers_detail.png/revision/latest?cb=20160918221426",
-          "PASTEL": "https://vignette3.wikia.nocookie.net/runescape2/images/5/55/Flowers_%28pastel%29_detail.png/revision/latest?cb=20160918221429",
-          "PURPLE": "https://vignette3.wikia.nocookie.net/runescape2/images/3/3d/Purple_flowers_detail.png/revision/latest?cb=20160918221430",
-          "RAINBOW": "https://vignette2.wikia.nocookie.net/runescape2/images/f/fd/Flowers_%28mixed%29_detail.png/revision/latest?cb=20160918221426"
+            "ORANGE": "https://vignette1.wikia.nocookie.net/runescape2/images/9/99/Orange_flowers_detail.png/revision/latest?cb=20160918221429",
+            "RED": "https://vignette4.wikia.nocookie.net/runescape2/images/6/6c/Red_flowers_detail.png/revision/latest?cb=20160918221431",
+            "YELLOW": "https://vignette.wikia.nocookie.net/runescape2/images/a/a6/Yellow_flowers_detail.png/revision/latest?cb=20160918221432",
+            "BLUE": "https://vignette4.wikia.nocookie.net/runescape2/images/d/d6/Blue_flowers_detail.png/revision/latest?cb=20160918221426",
+            "PASTEL": "https://vignette3.wikia.nocookie.net/runescape2/images/5/55/Flowers_%28pastel%29_detail.png/revision/latest?cb=20160918221429",
+            "PURPLE": "https://vignette3.wikia.nocookie.net/runescape2/images/3/3d/Purple_flowers_detail.png/revision/latest?cb=20160918221430",
+            "RAINBOW": "https://vignette2.wikia.nocookie.net/runescape2/images/f/fd/Flowers_%28mixed%29_detail.png/revision/latest?cb=20160918221426"
         }
 
 

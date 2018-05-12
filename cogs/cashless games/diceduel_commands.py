@@ -18,38 +18,36 @@ class DiceDuelCommands(object):
         self.bot = bot
 
 
-    @command(aliases=['dd'], hidden=True)
+    @command(aliases=['dd'])
     @has_dice()
-    # @has_role('Host')
-    async def diceduel(self, ctx:Context, user:Member, user_two:str=None, amount:str=None):
+    @has_role('Host')
+    async def diceduel(self, ctx:Context, user:Member, user_two:str=None, amount:int=0):
         '''
         Runs a dice duel of one (against the host) or two users
         '''
 
         '''
-           user*|user2|amount
-        dd @user|50   |
-        dd @user|@user|
-        dd @user|     |
-        dd @user|@user|50
+        Possible invocation scenarios:
+              |user*|user2|amount
+            dd|@user|50   |
+            dd|@user|@user|
+            dd|@user|     |
+            dd|@user|@user|50
         '''
 
         # Validate who's duelling who and for what
         if amount:
             user_one = user
             user_two = ctx.guild.get_member(int(''.join([i for i in user_two if i.isdigit()])))
-            amount = int(amount)
         elif user_two:
             if user_two.isdigit():
                 amount = int(user_two)
                 user_one, user_two = ctx.author, user
             else:
-                amount = 0
                 user_one = user
                 user_two = ctx.guild.get_member(int(''.join([i for i in user_two if i.isdigit()])))
         else:
             user_one, user_two = ctx.author, user 
-            amount = 0
 
         # Get the dice of the two users
         user_one_dice = self.bot.get_die(user_one.id)
@@ -91,6 +89,11 @@ class DiceDuelCommands(object):
             winner = user_one if sum(user_one_diceroll) > sum(user_two_diceroll) else user_two
         text = 'The winner is {0.mention}!'.format(winner)
         await ctx.send(text, embed=e)
+
+        # Store rolled dice
+        async with self.bot.database() as db:
+            await db.store_die(user_one_dice)
+            await db.store_die(user_two_dice)
 
 
 def setup(bot:CustomBot):

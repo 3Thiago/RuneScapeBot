@@ -114,8 +114,9 @@ class CustomBot(commands.AutoShardedBot):
         Lets you get a prefix for the guild that you're in
         '''
 
-        mentions = '<@{0.user.id}> ,<@!{0.user.id}> '.format(self).split(',')
-        return [self.default_prefix] + mentions
+        # mentions = '<@{0.user.id}> ,<@!{0.user.id}> '.format(self).split(',')
+        # return [self.default_prefix] + mentions
+        return self.default_prefix
 
 
     async def run_database_setup(self):
