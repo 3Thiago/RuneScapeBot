@@ -1,6 +1,5 @@
-from asyncio import TimeoutError
 from discord import Member
-from discord.ext.commands import command, Context
+from discord.ext.commands import command, Context, has_role
 from cogs.utils.custom_bot import CustomBot
 from cogs.utils.custom_embed import CustomEmbed
 from cogs.utils.random_from_list import random_from_list
@@ -20,7 +19,8 @@ class BlackjackCommands(object):
         self.running_games = [] 
 
 
-    @command(hidden=True)
+    @command()
+    @has_role('Host')
     async def bj(self, ctx:Context, user:Member):
         '''
         Gives you a nice fake game of blackjack to play
