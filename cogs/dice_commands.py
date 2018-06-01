@@ -42,11 +42,26 @@ class DiceCommands(object):
         '''
         d = self.bot.get_die(ctx.author.id)
         if d != None and d.valid:
-            await ctx.send('You can\'t change your seed partway through your dice\'s use. To set a custom seed, invalidate your current one with the `enddice` command, then make a new one with `newdice {}`.'.format(seed))
-            return
+            new = False
+            data = {
+                'user_id': d.user_id,
+                'client_seed': seed,
+                'server_seed': d.server_seed,
+                'nonce': d.nonce,
+            }
+            # await ctx.send('You can\'t change your seed partway through your dice\'s use. To set a custom seed, invalidate your current one with the `enddice` command, then make a new one with `newdice <client seed>`.')
+            # return
+        else:
+            new = True
+            data = {
+                'user_id': ctx.author.id,
+                'client_seed': seed,
+                'server_seed': None,
+                'nonce': -1,
+            }
 
         # Make the dice
-        die = ProvablyFair(user_id=ctx.author.id, client_seed=seed)
+        die = ProvablyFair(**data)
 
         # Cache and database it
         self.bot.set_die(ctx.author.id, die)
@@ -54,7 +69,10 @@ class DiceCommands(object):
             await db.store_die(die)
 
         # Print out to user
-        x = 'Your new die has been created - your server seed hash is `{.server_seed_hash}`.'.format(die)
+        if new: 
+            x = 'Your new die has been created - your server seed hash is `{.server_seed_hash}`.'.format(die)
+        else:
+            x = 'Your die has been updated.'
         await ctx.send(x)
 
 
