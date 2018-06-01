@@ -39,7 +39,7 @@ class HotColdCommands(object):
         '''
 
         # Get their die
-        die = self.bot.get_die(ctx.author.id)
+        die = await self.bot.aget_die(ctx.author.id)
         roll = die.get_random()
 
         # The "who won" functions

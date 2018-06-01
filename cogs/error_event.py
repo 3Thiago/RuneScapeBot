@@ -35,16 +35,17 @@ class ErrorEvent(object):
         elif isinstance(error, MissingRequiredRole):
             await ctx.send('You are missing a required role `{0!s}`.'.format(error))
         elif isinstance(error, NoDiceGenerated):
-            await ctx.send('You need to set a dice (with `newdice`) before you can use this command.')
+            await ctx.send('You need to set a dice (with `newdice <client seed>`) before you can use this command.')
         elif isinstance(error, NoCurrencySet):
             await ctx.send('You need to set a currency (with `setmode`) before you can use this command.')
         elif isinstance(error, CommandNotFound):
             pass  # Don't even log a command not found
         else:
-            try:
-                raise error
-            except Exception as e:
-                await ctx.send('```py\n' + format_exc() + '```')
+            # try:
+            #     raise error
+            # except Exception as e:
+            #     await ctx.send('```py\n' + format_exc() + '```')
+            await ctx.send(str(error))
 
 
 def setup(bot:Bot):

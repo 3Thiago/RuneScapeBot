@@ -50,8 +50,8 @@ class DiceDuelCommands(object):
             user_one, user_two = ctx.author, user 
 
         # Get the dice of the two users
-        user_one_dice = self.bot.get_die(user_one.id)
-        user_two_dice = self.bot.get_die(user_two.id)
+        user_one_dice = await self.bot.aget_die(user_one.id)
+        user_two_dice = await self.bot.aget_die(user_two.id)
 
         # Roll their dice
         user_one_rolls = [user_one_dice.get_random() for i in range(2)]

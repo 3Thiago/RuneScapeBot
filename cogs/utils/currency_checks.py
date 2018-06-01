@@ -4,7 +4,7 @@ from cogs.utils.custom_errors import NoDiceGenerated, NoCurrencySet
 
 def has_dice(*args, **kwargs):
     async def predicate(ctx:Context):
-        d = ctx.bot.get_die(ctx.author.id)
+        d = await ctx.bot.aget_die(ctx.author.id)
         if d:
             if d.valid:
                 return True

@@ -35,8 +35,9 @@ class CustomBot(commands.AutoShardedBot):
         self._die = {}
 
         # Start the giveaway task
-        self.giveaway = Giveaway(self)
-        self.giveaway_task = self.loop.create_task(self.giveaway.auto_giveaway())
+        if kwargs.get('run_giveaway', True):
+            self.giveaway = Giveaway(self)
+            self.giveaway_task = self.loop.create_task(self.giveaway.auto_giveaway())
 
 
     @property
@@ -66,7 +67,37 @@ class CustomBot(commands.AutoShardedBot):
         self.giveaway_task = self.loop.create_task(self.giveaway.auto_giveaway())
 
 
+    async def regen_die_list(self):
+        '''
+        Regenerates the die dictionary
+        '''
+
+        user_list = []
+        for i in self.guilds:
+            for o in i.members:
+                user_list.append(o)
+
+        try:
+            async with DatabaseConnection() as db:
+                for i in user_list:
+                    data = await db('SELECT * FROM dice, user_data WHERE dice.user_id=user_data.user_id')
+                    if data:
+                        for i in data:
+                            self.set_die(i['user_id'], ProvablyFair.from_database(i))
+        except Exception:
+            return
+
+
     def get_die(self, user_id):
+        return self._die.get(user_id)
+
+
+    async def aget_die(self, user_id):
+        v = self._die.get(user_id)
+        if not v:
+            await self.regen_die_list()
+        else:
+            return v 
         return self._die.get(user_id)
 
 

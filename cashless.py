@@ -5,7 +5,8 @@ from cogs.utils.custom_bot import CustomBot
 
 bot = CustomBot(
     default_prefix='$',
-    pm_help=True
+    pm_help=True,
+    run_giveaway=False
 )
 
 

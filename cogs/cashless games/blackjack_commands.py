@@ -35,14 +35,14 @@ class BlackjackCommands(object):
         game = Game(ctx.author.id, user.id)
 
         # Get the user some cards
-        user_die = self.bot.get_die(user.id)
+        user_die = await self.bot.aget_die(user.id)
         if user_die == None:
             raise NoDiceGenerated()
         user_random = [user_die.get_random() for i in range(2)]
         game.bettor_hand = [random_card(i['result']) for i in user_random]
 
         # Get the dealer some cards
-        dealer_die = self.bot.get_die(ctx.author.id)
+        dealer_die = await self.bot.aget_die(ctx.author.id)
         if dealer_die == None:
             raise NoDiceGenerated()
         dealer_random = [dealer_die.get_random() for i in range(2)]
@@ -55,6 +55,10 @@ class BlackjackCommands(object):
         # Display to userman
         m = await ctx.send('It is now <@{}>\'s turn.'.format(game.bettor), embed=game.embed)
         game.message = m
+        async with self.bot.database() as db:
+            await db.store_die(dealer_die)
+            await db.store_die(user_die)
+
 
 
     @command(hidden=True)
@@ -77,10 +81,12 @@ class BlackjackCommands(object):
             return
 
         # Generate random
-        user_die = self.bot.get_die(ctx.author.id)
+        user_die = await self.bot.aget_die(ctx.author.id)
         if user_die == None:
             raise NoDiceGenerated()
         user_random = user_die.get_random()
+        async with self.bot.database() as db:
+            await db.store_die(user_die)
 
         # Get random card
         getattr(game, '{}_hand'.format(role)).append(random_card(user_random['result']))
@@ -135,6 +141,9 @@ class BlackjackCommands(object):
             elif min(game.get_value_of_hand(game.dealer_hand)) >= 17:
                 await self.end_blackjack_game(ctx)
                 return
+            elif max(game.get_value_of_hand(game.dealer_hand)) >= max(game.get_value_of_hand(game.bettor_hand)):
+                await self.end_blackjack_game(ctx)
+                return
             await ctx.send('It is now <@{}>\'s turn.'.format(game.dealer), embed=game.embed)
 
 
@@ -155,8 +164,8 @@ class BlackjackCommands(object):
 
         # Store the newly-rolled dice
         dice = [
-            self.bot.get_die(game.dealer.id),
-            self.bot.get_die(game.bettor.id)
+            await self.bot.aget_die(game.dealer),
+            await self.bot.aget_die(game.bettor)
         ]
         async with self.bot.database() as db:
             await db.store_die(dice[0])
@@ -165,7 +174,7 @@ class BlackjackCommands(object):
         e = game.embed
         e.description = ''
         e.colour = 0xff1111
-        await ctx.send('<@{0[0]}> wins!'.format(game.winner), embed=e)
+        await ctx.send('<@{0[0]}> (the {0[1]}) wins!'.format(game.winner), embed=e)
 
 
     @command(hidden=True)
